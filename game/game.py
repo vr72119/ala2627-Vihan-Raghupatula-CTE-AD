@@ -54,19 +54,19 @@ def ask():
 # ---- 3. THE OPENING ------------------------------------------
 
 print("=" * 44)
-print("           THE VAULT")
+print("   hood arnold palmer story (sad ending)")
 print("=" * 44)
 print()
 
-player_name = input("What is your name, explorer? ").strip()
+player_name = input("what yo name is? ").strip()
 if player_name == "":
     player_name = "Nobody"          # they just pressed enter
 
 print()
-print("Welcome, " + player_name + ".")
-print("You are standing in a dusty hall. There is a door NORTH")
-print("and a rug on the floor you could LOOK under.")
-say("Type HELP if you get stuck, or QUIT to give up.")
+print("what cracka lackin " + player_name + ".")
+print("you in the hood man. ya eitha go NAWF or SAWF")
+print("There also sum on de flo. ya can BEND OVER to see whats dere.")
+say("Type HELP if ya get stuck, or QUIT to give up.")
 
 
 # ---- 4. THE GAME LOOP ----------------------------------------
@@ -79,55 +79,58 @@ while True:
 
     # -- commands that work anywhere ------------------------
     if command == "quit":
-        say("You walk away. " + player_name + " lasted " + str(moves) + " moves.")
+        say("ya dip. " + player_name + " lasted " + str(moves) + " moves.")
         break
 
     elif command == "help":
-        say("Try: LOOK, NORTH, SOUTH, TAKE KEY, OPEN VAULT, QUIT")
+        say("Try: BEND OVER, NAWF, SAWF, PICK, PUFF, QUIT, LOOK")
 
     # -- the hall -------------------------------------------
     elif room == "hall":
-        if command == "look":
+        if command == "bend over":
             if has_key:
-                say("Just a rug, and the hole where the key was.")
+                say("nuttin here")
             else:
-                say("Under the rug: a small brass KEY.")
+                say("PICK up de arnawld pawlmer.")
 
-        elif command == "take key":
+        elif command == "pick":
             if has_key:
-                say("You already have it.")
+                say("awlready drank it sucka")
             else:
                 has_key = True
-                say("You pocket the key. It is colder than it should be.")
+                say("ya grab ts it only 79 cents so u be trippin")
 
-        elif command == "north":
-            room = "vault"
-            print("You step into a room with a huge steel door. The VAULT.")
-            say("There is a way back SOUTH.")
+        elif command == "nawf":
+            room = "pool"
+            print("ya see the drankin spawt. it be trippin and shi")
+            say("dere is a way back sawf")
 
         else:
-            say("You cannot do that here.")
+            say("fu nah")
 
     # -- the vault ------------------------------------------
-    elif room == "vault":
+    elif room == "pool":
         if command == "look":
-            say("A steel door with a small keyhole. It is shut.")
+            say("peak drank spawt")
 
-        elif command == "south":
+        elif command == "sawf":
             room = "hall"
-            say("Back in the dusty hall.")
+            say("bah in da livin rewm")
 
-        elif command == "open vault":
+        elif command == "drank":
             if has_key:
-                print("The key turns. The door swings open.")
-                print("Inside: absolutely nothing. Someone beat you here.")
-                say("You win anyway, " + player_name + " — in " + str(moves) + " moves.")
+                print("ya pull de tab thing awn de can")
+                print("ya drank that jawn in foive secawnds it was muy bueno")
+                say("ya did it " + player_name + " in " + str(moves) + " moves.")
                 break
             else:
-                say("It is locked. You need a key.")
+                say("u need de arnawld pawlmer")
 
         else:
-            say("You cannot do that here.")
+            say("fuh nah")
+        if command == "chuck":
+            say("ya chuck that shit into oblivion now ya lost it go f*** ya self man i was gonna drink that s***")
+            break
 
 
 # ============================================================
