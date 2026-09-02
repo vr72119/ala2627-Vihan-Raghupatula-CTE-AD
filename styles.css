@@ -20,7 +20,7 @@
    wider than you asked for, and nothing lines up. */
 html {
   min-height: 100%;
-  background: var(--paper);
+  background: #fffafc;
   scroll-behavior: smooth;
 }
 
@@ -43,9 +43,10 @@ body {
 }
 
 body::before {
-  position: fixed;
-  inset: -12%;
+  position: absolute;
+  inset: -4%;
   z-index: -1;
+  min-height: 108%;
   pointer-events: none;
   content: "";
   background:
