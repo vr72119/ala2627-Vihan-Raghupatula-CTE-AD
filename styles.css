@@ -77,12 +77,12 @@ body::before {
   justify-content: space-between;
   min-height: 2.75rem;
   padding: 0.35rem 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.58);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.5);
-  box-shadow: 0 0.75rem 2rem rgba(80, 55, 120, 0.08), inset 0 1px rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(22px) saturate(130%);
-  -webkit-backdrop-filter: blur(22px) saturate(130%);
+  background: rgba(255, 255, 255, 0.24);
+  box-shadow: 0 0.75rem 2rem rgba(80, 55, 120, 0.06), inset 0 1px rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
 }
 
 .brand {
@@ -138,12 +138,12 @@ h1 em {
   min-height: 72vh;
   margin-top: 1rem;
   padding: 14vh clamp(1.5rem, 4vw, 4rem) 5rem;
-  border: 1px solid rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(255, 255, 255, 0.52);
   border-radius: 2rem;
-  background: rgba(255, 255, 255, 0.42);
-  box-shadow: 0 1.5rem 4rem rgba(88, 55, 130, 0.1), inset 0 1px rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(18px) saturate(120%);
-  -webkit-backdrop-filter: blur(18px) saturate(120%);
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 1.5rem 4rem rgba(88, 55, 130, 0.08), inset 0 1px rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px) saturate(130%);
+  -webkit-backdrop-filter: blur(20px) saturate(130%);
 }
 
 .hero-note {
@@ -206,11 +206,11 @@ main {
 .about-section,
 .contact-section {
   padding: 5rem clamp(1.5rem, 4vw, 4rem);
-  background: rgba(255, 255, 255, 0.28);
-  border-left: 1px solid rgba(255, 255, 255, 0.58);
-  border-right: 1px solid rgba(255, 255, 255, 0.58);
-  backdrop-filter: blur(14px) saturate(115%);
-  -webkit-backdrop-filter: blur(14px) saturate(115%);
+  background: rgba(255, 255, 255, 0.14);
+  border-left: 1px solid rgba(255, 255, 255, 0.44);
+  border-right: 1px solid rgba(255, 255, 255, 0.44);
+  backdrop-filter: blur(16px) saturate(125%);
+  -webkit-backdrop-filter: blur(16px) saturate(125%);
 }
 
 .work-section {
