@@ -67,7 +67,9 @@ body {
   text-decoration: none;
 }
 
-.nav-links a:hover { color: var(--ink); }
+.nav-links a:hover {
+  color: var(--ink);
+}
 
 h1 {
   max-width: 12ch;
@@ -135,7 +137,9 @@ h1 em {
   text-decoration: none;
 }
 
-.contact-link:hover { text-decoration: underline; }
+.contact-link:hover {
+  text-decoration: underline;
+}
 
 .hero-link span,
 .contact-link span {
@@ -282,7 +286,9 @@ footer span {
     font-size: 4.5rem;
   }
 
-  .nav-links { gap: 0.85rem; }
+  .nav-links {
+    gap: 0.85rem;
+  }
 
   .hero {
     display: block;
