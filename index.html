@@ -5,53 +5,70 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- CHANGE THIS. It is the name on the browser tab, and it is what Google shows. -->
-  <title>Vihan Raghupatula — What I'm doing</title>
+  <title>Vihan Raghupatula | Student Researcher &amp; Developer</title>
 
-  <!-- CHANGE THIS TOO. One sentence. It is what shows under your link when someone shares it. -->
-  <meta name="description" content="About me">
+  <meta name="description"
+    content="The portfolio of Vihan Raghupatula, a student researcher and developer exploring biology, games, and the web.">
 
   <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 
-  <header>
-    <!-- Exactly ONE h1 on the page. It is your name. -->
-    <h1>Vihan Raghupatula</h1>
-    <p class="tagline">I like cars and biological research.</p>
+  <header class="hero">
+    <p class="eyebrow">Student researcher <span>/</span> creative developer</p>
+    <h1>Vihan<br><em>Raghupatula.</em></h1>
+    <p class="tagline">Curious about the systems that keep living things moving, and the tools that help us understand
+      them.</p>
+    <a class="hero-link" href="#work">Explore my work <span aria-hidden="true">↘</span></a>
   </header>
 
   <main>
 
-    <section>
-      <h2>What I am working on</h2>
+    <section id="work" class="work-section">
+      <div class="section-heading">
+        <p class="section-number">01</p>
+        <h2>Selected work</h2>
+      </div>
       <ul>
-        <li><strong>Research project:</strong> Trangenerational effects of Caffeine and Chlorogenic acid on C. Elegans Roundworms</li>
-        <li><strong>My own game:</strong> Still gotta figure this one out.</li>
+        <li class="project">
+          <span class="project-type">Biology / Research</span>
+          <strong>Transgenerational effects of caffeine and chlorogenic acid</strong>
+          <p>Investigating how these compounds influence <em>C. elegans</em> across generations.</p>
+        </li>
+        <li class="project">
+          <span class="project-type">Interactive media</span>
+          <strong>The Vault</strong>
+          <p>A text adventure built to practice systems thinking, narrative, and game design.</p>
+        </li>
       </ul>
     </section>
 
-    <section>
-      <h2>What I am learning</h2>
-      <p>
-        Learning how to build websites and games. Don't know much yet.
-      </p>
+    <section class="about-section">
+      <div class="section-heading">
+        <p class="section-number">02</p>
+        <h2>Current direction</h2>
+      </div>
+      <p class="statement">I am building a foundation in web development and game design while developing a deeper
+        understanding of biological research.</p>
+      <p class="supporting-text">I enjoy learning by making things: asking better questions, testing ideas, and turning
+        rough concepts into something people can experience.</p>
     </section>
 
-    <section>
-      <h2>Get in touch with me</h2>
-      <!--
-        Put an email you will still control after graduation. If you only have the school one
-        today, that is fine — put it in, and change it later. That is what commits are for.
-      -->
-      <p><a href="mailto:vihanr2010@gmail.com">vihanr2010@gmail.com</a></p>
+    <section class="contact-section">
+      <div>
+        <p class="section-number">03</p>
+        <h2>Let’s connect</h2>
+      </div>
+      <p>Have an interesting question, project, or idea?</p>
+      <a class="contact-link" href="mailto:vihanr2010@gmail.com">vihanr2010@gmail.com <span
+          aria-hidden="true">↗</span></a>
     </section>
 
   </main>
 
   <footer>
-    <p>Built using github. Last updated <!-- change this when you change the page --> September 2026.</p>
+    <p>Vihan Raghupatula <span>·</span> Portfolio / 2026</p>
   </footer>
 
 </body>

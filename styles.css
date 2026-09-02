@@ -8,15 +8,12 @@
    changes everywhere it is used further down. */
 :root {
   --ink: #ffffff;
-  /* body text */
   --muted: #a7b4c8;
-  /* quieter text */
-  --accent: #ffb86b;
-  /* links and rules — make this yours */
+  --accent: #67e8d4;
   --paper: #09111f;
-  --line: #e47b54;
-  --measure: 34rem;
-  /* how wide a line of text gets before it wraps */
+  --line: #4ba3c7;
+  --measure: 70rem;
+  --soft-line: rgba(167, 180, 200, 0.2);
 }
 
 /* A sensible reset. Without border-box, padding makes boxes
@@ -37,11 +34,11 @@ body {
   isolation: isolate;
   min-height: 100vh;
   margin: 0 auto;
-  padding: 3rem 1.25rem 4rem;
+  padding: 2.5rem clamp(1.25rem, 5vw, 5rem) 3rem;
   max-width: var(--measure);
   background: transparent;
   color: var(--ink);
-  font: 1rem/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font: 1rem/1.65 "Avenir Next", "Segoe UI", sans-serif;
 }
 
 body::before,
@@ -55,7 +52,7 @@ body::after {
 
 body::before {
   background:
-    radial-gradient(circle at 15% 12%, rgba(228, 123, 84, 0.2), transparent 25rem),
+    radial-gradient(circle at 15% 12%, rgba(50, 205, 190, 0.2), transparent 25rem),
     radial-gradient(circle at 86% 82%, rgba(54, 132, 165, 0.2), transparent 28rem),
     linear-gradient(135deg, #09111f 0%, #11182a 48%, #07141c 100%);
   animation: atmosphere 14s ease-in-out infinite alternate;
@@ -76,41 +73,176 @@ body::after {
   }
 
   to {
-    filter: hue-rotate(12deg) saturate(1.15);
+    filter: hue-rotate(6deg) saturate(1.15);
   }
 }
 
 h1 {
-  margin: 0;
-  font-size: 2.15rem;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+  max-width: 9ch;
+  margin: 1.25rem 0 1.5rem;
+  font-size: clamp(4rem, 11vw, 8.5rem);
+  line-height: 0.86;
+  letter-spacing: 0;
+  font-weight: 600;
+}
+
+h1 em {
+  color: var(--accent);
+  font-family: Georgia, serif;
+  font-weight: 400;
 }
 
 .tagline {
-  margin: 0.5rem 0 0;
+  max-width: 32rem;
+  margin: 0;
   color: var(--muted);
-  font-size: 1.05rem;
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  line-height: 1.45;
+}
+
+.hero {
+  min-height: 74vh;
+  padding: 8vh 0 5rem;
+  border-bottom: 1px solid var(--soft-line);
+}
+
+.eyebrow,
+.project-type,
+.section-number {
+  margin: 0;
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.eyebrow span {
+  margin: 0 0.5rem;
+  color: var(--muted);
+}
+
+.hero-link,
+.contact-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 2.5rem;
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.hero-link span,
+.contact-link span {
+  color: var(--accent);
+  font-size: 1.3em;
+  transition: transform 180ms ease;
+}
+
+.hero-link:hover span,
+.contact-link:hover span {
+  transform: translate(0.2rem, 0.2rem);
+}
+
+main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 5rem;
+}
+
+.work-section,
+.about-section,
+.contact-section {
+  padding: 5rem 0;
+}
+
+.work-section {
+  grid-column: 1 / -1;
+}
+
+.section-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
 h2 {
-  margin: 2.75rem 0 0.75rem;
-  padding-bottom: 0.4rem;
-  border-bottom: 1px solid var(--line);
-  font-size: 0.82rem;
+  margin: 0;
+  font-size: 1.1rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent);
+  letter-spacing: 0;
 }
 
 ul {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
   margin: 0;
-  padding-left: 1.1rem;
+  padding: 0;
+  list-style: none;
 }
 
-li {
-  margin-bottom: 0.6rem;
+.project {
+  min-height: 15rem;
+  padding: 1.5rem;
+  border: 1px solid var(--soft-line);
+  background: rgba(9, 17, 31, 0.42);
+  transition: border-color 180ms ease, transform 180ms ease;
+}
+
+.project:hover {
+  border-color: var(--accent);
+  transform: translateY(-0.25rem);
+}
+
+.project strong {
+  display: block;
+  margin-top: 2.75rem;
+  font-size: 1.35rem;
+  line-height: 1.2;
+}
+
+.project p,
+.contact-section p,
+.supporting-text {
+  color: var(--muted);
+}
+
+.project p {
+  margin: 0.85rem 0 0;
+}
+
+.statement {
+  margin: 0;
+  font-size: clamp(1.45rem, 3vw, 2.2rem);
+  line-height: 1.2;
+}
+
+.supporting-text {
+  margin-top: 2rem;
+}
+
+.contact-section {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 5rem;
+  border-top: 1px solid var(--soft-line);
+}
+
+.contact-section h2 {
+  margin-top: 0.75rem;
+}
+
+.contact-section>p {
+  margin: 0;
+  align-self: end;
+}
+
+.contact-link {
+  margin-top: 1rem;
 }
 
 a {
@@ -123,21 +255,66 @@ a:hover {
 }
 
 footer {
-  margin-top: 3.5rem;
+  margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--soft-line);
   color: var(--muted);
   font-size: 0.85rem;
+}
+
+footer span {
+  padding: 0 0.4rem;
+  color: var(--accent);
 }
 
 /* Someone reading this on a phone is the common case, not the
    edge case. Test it there before you call the page done. */
 @media (max-width: 30rem) {
   body {
-    padding-top: 2rem;
+    padding-top: 1.5rem;
   }
 
   h1 {
-    font-size: 1.8rem;
+    font-size: 4.5rem;
+  }
+
+  .hero {
+    min-height: 78vh;
+  }
+
+  main,
+  .contact-section,
+  ul {
+    grid-template-columns: 1fr;
+  }
+
+  .work-section,
+  .about-section,
+  .contact-section {
+    padding: 3.5rem 0;
+  }
+
+  .contact-section>p {
+    margin-top: 2rem;
+  }
+
+  .project {
+    min-height: auto;
+  }
+
+  .project strong {
+    margin-top: 2rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
