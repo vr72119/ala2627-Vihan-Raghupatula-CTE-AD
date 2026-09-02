@@ -40,6 +40,35 @@ body {
   font: 1rem/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
 }
 
+.site-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 2.75rem;
+  border-bottom: 1px solid var(--soft-line);
+}
+
+.brand {
+  color: var(--ink);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.75rem;
+}
+
+.nav-links a {
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.nav-links a:hover { color: var(--ink); }
+
 h1 {
   max-width: 12ch;
   margin: 1.25rem 0 1.5rem;
@@ -63,9 +92,20 @@ h1 em {
 }
 
 .hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 13rem;
+  align-items: end;
+  gap: 3rem;
   min-height: 72vh;
   padding: 14vh 0 5rem;
   border-bottom: 1px solid var(--soft-line);
+}
+
+.hero-note {
+  margin: 0 0 0.35rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
 .eyebrow,
@@ -94,6 +134,8 @@ h1 em {
   font-weight: 700;
   text-decoration: none;
 }
+
+.contact-link:hover { text-decoration: underline; }
 
 .hero-link span,
 .contact-link span {
@@ -238,6 +280,17 @@ footer span {
 
   h1 {
     font-size: 4.5rem;
+  }
+
+  .nav-links { gap: 0.85rem; }
+
+  .hero {
+    display: block;
+    min-height: 78vh;
+  }
+
+  .hero-note {
+    margin-top: 3rem;
   }
 
   .hero {
