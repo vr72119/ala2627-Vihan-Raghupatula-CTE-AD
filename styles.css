@@ -31,13 +31,41 @@ html {
 }
 
 body {
+  position: relative;
+  isolation: isolate;
   min-height: 100vh;
   margin: 0 auto;
   padding: 2rem clamp(1.25rem, 5vw, 4rem) 3rem;
   max-width: var(--measure);
-  background: var(--paper);
+  background: transparent;
   color: var(--ink);
   font: 1rem/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+}
+
+body::before {
+  position: fixed;
+  inset: -12%;
+  z-index: -1;
+  pointer-events: none;
+  content: "";
+  background:
+    radial-gradient(ellipse 34rem 18rem at 14% 18%, rgba(163, 107, 255, 0.22), transparent 70%),
+    radial-gradient(ellipse 38rem 20rem at 82% 22%, rgba(255, 171, 91, 0.2), transparent 68%),
+    radial-gradient(ellipse 32rem 22rem at 68% 88%, rgba(238, 117, 194, 0.16), transparent 70%),
+    linear-gradient(125deg, #ffffff 12%, #faf8ff 48%, #fffaf5 82%, #ffffff 100%);
+  filter: blur(34px) saturate(112%);
+  transform: rotate(-4deg) scale(1.08);
+  animation: wallpaper-drift 18s ease-in-out infinite alternate;
+}
+
+@keyframes wallpaper-drift {
+  from {
+    transform: rotate(-4deg) scale(1.08) translate3d(-1%, -1%, 0);
+  }
+
+  to {
+    transform: rotate(2deg) scale(1.12) translate3d(1%, 1%, 0);
+  }
 }
 
 .site-nav {
