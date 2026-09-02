@@ -7,25 +7,77 @@
 /* The custom properties. Change a colour ONCE here and it
    changes everywhere it is used further down. */
 :root {
-  --ink:        #ffffff;   /* body text */
-  --muted:      #9e2f00;   /* quieter text */
-  --accent:     #ff5e00;   /* links and rules — make this yours */
-  --paper:      #181818;
-  --line:       #ff5e00;
-  --measure:    34rem;     /* how wide a line of text gets before it wraps */
+  --ink: #ffffff;
+  /* body text */
+  --muted: #a7b4c8;
+  /* quieter text */
+  --accent: #ffb86b;
+  /* links and rules — make this yours */
+  --paper: #09111f;
+  --line: #e47b54;
+  --measure: 34rem;
+  /* how wide a line of text gets before it wraps */
 }
 
 /* A sensible reset. Without border-box, padding makes boxes
    wider than you asked for, and nothing lines up. */
-*, *::before, *::after { box-sizing: border-box; }
+html {
+  min-height: 100%;
+  background: #050914;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
 body {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
   margin: 0 auto;
   padding: 3rem 1.25rem 4rem;
   max-width: var(--measure);
-  background: var(--paper);
+  background: transparent;
   color: var(--ink);
   font: 1rem/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+body::before,
+body::after {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  content: "";
+}
+
+body::before {
+  background:
+    radial-gradient(circle at 15% 12%, rgba(228, 123, 84, 0.2), transparent 25rem),
+    radial-gradient(circle at 86% 82%, rgba(54, 132, 165, 0.2), transparent 28rem),
+    linear-gradient(135deg, #09111f 0%, #11182a 48%, #07141c 100%);
+  animation: atmosphere 14s ease-in-out infinite alternate;
+}
+
+body::after {
+  opacity: 0.3;
+  background-image:
+    linear-gradient(rgba(167, 180, 200, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(167, 180, 200, 0.08) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: linear-gradient(to bottom, black, transparent 82%);
+}
+
+@keyframes atmosphere {
+  from {
+    filter: hue-rotate(0deg) saturate(0.95);
+  }
+
+  to {
+    filter: hue-rotate(12deg) saturate(1.15);
+  }
 }
 
 h1 {
@@ -52,14 +104,23 @@ h2 {
   color: var(--accent);
 }
 
-ul { margin: 0; padding-left: 1.1rem; }
-li { margin-bottom: 0.6rem; }
+ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+li {
+  margin-bottom: 0.6rem;
+}
 
 a {
   color: var(--accent);
   text-underline-offset: 3px;
 }
-a:hover { text-decoration: none; }
+
+a:hover {
+  text-decoration: none;
+}
 
 footer {
   margin-top: 3.5rem;
@@ -72,6 +133,11 @@ footer {
 /* Someone reading this on a phone is the common case, not the
    edge case. Test it there before you call the page done. */
 @media (max-width: 30rem) {
-  body { padding-top: 2rem; }
-  h1   { font-size: 1.8rem; }
+  body {
+    padding-top: 2rem;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+  }
 }
