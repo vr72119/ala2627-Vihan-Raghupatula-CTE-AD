@@ -18,6 +18,9 @@
   --glass-strong: rgba(248, 250, 250, 0.97);
   --glass-ink: #18222b;
   --glass-muted: #586873;
+  --page-glass: rgba(20, 29, 36, 0.78);
+  --page-text: #ffffff;
+  --page-muted: rgba(255, 255, 255, 0.72);
 }
 
 /* A sensible reset. Without border-box, padding makes boxes
@@ -193,8 +196,8 @@ h1 em {
   padding: 14vh clamp(1.5rem, 4vw, 4rem) 5rem;
   border: 1px solid rgba(255, 255, 255, 0.7);
   border-radius: 2rem;
-  background: var(--glass);
-  color: var(--glass-ink);
+  background: var(--page-glass);
+  color: var(--page-text);
   box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.24), inset 0 1px rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px) saturate(130%);
   -webkit-backdrop-filter: blur(20px) saturate(130%);
@@ -202,7 +205,7 @@ h1 em {
 
 .hero-note {
   margin: 0 0 0.35rem;
-  color: var(--glass-muted);
+  color: var(--page-muted);
   font-size: 0.9rem;
   line-height: 1.5;
 }
@@ -219,7 +222,7 @@ h1 em {
 }
 
 .hero .eyebrow {
-  color: var(--glass-muted);
+  color: var(--page-muted);
 }
 
 .eyebrow span {
@@ -267,8 +270,8 @@ main {
   padding: 5rem clamp(1.5rem, 4vw, 4rem);
   border: 1px solid rgba(255, 255, 255, 0.7);
   border-radius: 2rem;
-  background: var(--glass);
-  color: var(--glass-ink);
+  background: var(--page-glass);
+  color: var(--page-text);
   box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.2), inset 0 1px rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(16px) saturate(125%);
   -webkit-backdrop-filter: blur(16px) saturate(125%);
@@ -278,7 +281,7 @@ main {
 .work-section .section-number,
 .about-section .section-number,
 .contact-section .section-number {
-  color: var(--glass-muted);
+  color: var(--page-muted);
 }
 
 .work-section {
@@ -331,7 +334,7 @@ ul {
 .project p,
 .contact-section p,
 .supporting-text {
-  color: var(--glass-muted);
+  color: var(--page-muted);
 }
 
 .project p {
@@ -382,7 +385,7 @@ footer {
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: 1px solid var(--soft-line);
-  color: var(--muted);
+  color: var(--page-muted);
   font-size: 0.85rem;
 }
 
