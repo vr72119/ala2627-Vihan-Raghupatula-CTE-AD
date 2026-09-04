@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark-mode">
 
 <head>
   <meta charset="utf-8">
@@ -18,6 +18,16 @@
       <a href="#work">Work</a>
       <a href="#assignments">Assignments</a>
       <a href="#about">About</a>
+    </div>
+    <div class="control-pod" aria-label="Display controls">
+      <label class="apple-switch" title="Toggle dark mode">
+        <input id="theme-toggle" type="checkbox" aria-label="Toggle dark mode" checked>
+        <span class="switch-track"><span class="switch-thumb"></span></span>
+      </label>
+      <label class="glass-control" title="Adjust glass transparency">
+        <span aria-hidden="true">◌</span>
+        <input id="glass-slider" type="range" min="20" max="75" value="42" aria-label="Adjust glass transparency">
+      </label>
     </div>
     <a class="nav-contact" href="mailto:vihanr2010@gmail.com">Say hello <span aria-hidden="true">↗</span></a>
   </nav>
@@ -145,6 +155,17 @@
     <p>Built while learning, 2026</p>
   </footer>
   <script>
+    const themeToggle = document.querySelector('#theme-toggle');
+    const glassSlider = document.querySelector('#glass-slider');
+
+    themeToggle.addEventListener('change', () => {
+      document.documentElement.classList.toggle('dark-mode', themeToggle.checked);
+    });
+
+    glassSlider.addEventListener('input', () => {
+      document.documentElement.style.setProperty('--glass-alpha', `${glassSlider.value}%`);
+    });
+
     const searchInput = document.querySelector('#assignment-search');
     const assignments = [...document.querySelectorAll('.assignment-item')];
     const emptyState = document.querySelector('#empty-state');
