@@ -9,7 +9,7 @@
 :root {
   --ink: #f5f7fa;
   --muted: #b3bac6;
-  --accent: #8ed8ff;
+  --accent: #ffb4df;
   --paper: #f4f7f8;
   --line: rgba(255, 255, 255, 0.28);
   --measure: 70rem;
@@ -18,7 +18,7 @@
   --glass-strong: rgba(248, 250, 250, 0.97);
   --glass-ink: #18222b;
   --glass-muted: #586873;
-  --page-glass: rgba(20, 29, 36, 0.78);
+  --page-glass: rgba(16, 18, 42, 0.66);
   --page-text: #ffffff;
   --page-muted: rgba(255, 255, 255, 0.72);
 }
@@ -27,7 +27,7 @@
    wider than you asked for, and nothing lines up. */
 html {
   min-height: 100%;
-  background: #111820;
+  background: #080b21;
   scroll-behavior: smooth;
 }
 
@@ -58,13 +58,29 @@ body::before {
   pointer-events: none;
   content: "";
   background:
-    radial-gradient(ellipse 34rem 18rem at 14% 18%, rgba(54, 143, 181, 0.34), transparent 70%),
-    radial-gradient(ellipse 38rem 20rem at 82% 22%, rgba(176, 206, 210, 0.22), transparent 68%),
-    radial-gradient(ellipse 32rem 22rem at 68% 88%, rgba(69, 103, 130, 0.3), transparent 70%),
-    linear-gradient(125deg, #111820 8%, #1c2b34 48%, #111820 100%);
-  filter: blur(30px) saturate(115%);
-  transform: rotate(-4deg) scale(1.08);
-  animation: wallpaper-drift 18s ease-in-out infinite alternate;
+    radial-gradient(ellipse 28rem 18rem at 91% 11%, rgba(255, 152, 111, 0.92), transparent 66%),
+    radial-gradient(ellipse 34rem 24rem at 8% 30%, rgba(255, 72, 174, 0.75), transparent 68%),
+    radial-gradient(ellipse 38rem 28rem at 52% 93%, rgba(44, 177, 255, 0.75), transparent 67%),
+    linear-gradient(132deg, #090b29 5%, #172b72 38%, #281359 63%, #080b21 100%);
+  filter: blur(26px) saturate(135%);
+  transform: rotate(-5deg) scale(1.1);
+  animation: wallpaper-drift 20s ease-in-out infinite alternate;
+}
+
+body::after {
+  position: absolute;
+  inset: -12%;
+  z-index: -1;
+  pointer-events: none;
+  content: "";
+  background:
+    linear-gradient(116deg, transparent 22%, rgba(255, 255, 255, 0.14) 33%, transparent 46%),
+    linear-gradient(116deg, transparent 47%, rgba(255, 119, 206, 0.22) 57%, transparent 70%),
+    conic-gradient(from 210deg at 65% 45%, transparent 0 18%, rgba(67, 190, 255, 0.22) 28%, transparent 41% 100%);
+  filter: blur(42px);
+  opacity: 0.85;
+  transform: rotate(7deg) scale(1.15);
+  animation: wallpaper-sheen 24s ease-in-out infinite alternate;
 }
 
 @keyframes wallpaper-drift {
@@ -74,6 +90,16 @@ body::before {
 
   to {
     transform: rotate(2deg) scale(1.12) translate3d(1%, 1%, 0);
+  }
+}
+
+@keyframes wallpaper-sheen {
+  from {
+    transform: rotate(7deg) scale(1.15) translate3d(-2%, 1%, 0);
+  }
+
+  to {
+    transform: rotate(-4deg) scale(1.2) translate3d(2%, -1%, 0);
   }
 }
 
