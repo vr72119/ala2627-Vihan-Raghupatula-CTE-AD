@@ -58,7 +58,12 @@ main{ max-width: 60rem; margin: 0 auto; padding: 2rem 1.25rem; }
    Work out which is which before you type anything.
    ------------------------------------------------------------ */
 
-.cards{
+.cards{.
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: stretch;
+}
 
   /* YOUR CODE HERE */
 
