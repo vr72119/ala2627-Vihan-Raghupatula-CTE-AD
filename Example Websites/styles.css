@@ -184,7 +184,7 @@ h1 {
 }
 
 .poly-card h2 {
-  margin: 54px 0 8px;
+  margin: 38px 0 8px;
   font-size: 1.65rem;
   line-height: 1;
   letter-spacing: -.04em;
@@ -290,115 +290,6 @@ h1 {
   clip-path: polygon(14% 0, 83% 15%, 100% 78%, 41% 100%, 0 48%);
 }
 
-.glyph {
-  position: absolute;
-  z-index: 1;
-  top: 104px;
-  left: 26px;
-  transition: transform .6s var(--ease);
-}
-
-.glyph-sun {
-  width: 34px;
-  height: 34px;
-  border: 7px solid var(--ink);
-  border-radius: 50%;
-  box-shadow: 18px -10px 0 -12px var(--ink), -18px 12px 0 -12px var(--ink);
-}
-
-.glyph-steps {
-  display: flex;
-  align-items: end;
-  gap: 4px;
-  height: 42px;
-}
-
-.glyph-steps i {
-  display: block;
-  width: 10px;
-  background: var(--ink);
-  transform: skewY(-25deg);
-}
-
-.glyph-steps i:nth-child(1) {
-  height: 16px;
-}
-
-.glyph-steps i:nth-child(2) {
-  height: 29px;
-}
-
-.glyph-steps i:nth-child(3) {
-  height: 42px;
-}
-
-.glyph-diamond {
-  width: 40px;
-  height: 40px;
-  border: 5px solid var(--ink);
-  transform: rotate(45deg);
-}
-
-.glyph-shine {
-  width: 44px;
-  height: 44px;
-  border: 5px solid var(--ink);
-  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
-}
-
-.glyph-orbit {
-  width: 44px;
-  height: 44px;
-  border: 3px solid var(--ink);
-  border-radius: 50%;
-}
-
-.glyph-orbit::after {
-  position: absolute;
-  top: -5px;
-  left: 28px;
-  width: 10px;
-  height: 10px;
-  content: '';
-  background: var(--ink);
-  border-radius: 50%;
-}
-
-.glyph-float {
-  width: 40px;
-  height: 40px;
-  background: var(--ink);
-  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
-}
-
-.glyph-scan {
-  width: 48px;
-  height: 34px;
-  border: 4px solid var(--ink);
-}
-
-.glyph-scan::after {
-  position: absolute;
-  top: 12px;
-  left: 4px;
-  width: 32px;
-  height: 4px;
-  content: '';
-  background: var(--ink);
-}
-
-.glyph-flip {
-  display: grid;
-  width: 44px;
-  height: 44px;
-  border: 4px solid var(--ink);
-  place-items: center;
-}
-
-.glyph-flip span {
-  font-size: 1.5rem;
-}
-
 .card-rise {
   animation: rise .75s .1s var(--ease) both;
 }
@@ -411,10 +302,6 @@ h1 {
   animation: rise .75s .18s var(--ease) both;
 }
 
-.card-lift:hover .glyph {
-  transform: translateY(-9px);
-}
-
 .card-tilt {
   animation: rise .75s .26s var(--ease) both;
   transform-style: preserve-3d;
@@ -423,10 +310,6 @@ h1 {
 .card-tilt:hover,
 .card-tilt:focus-visible {
   transform: perspective(700px) rotateX(3deg) rotateY(-5deg) translate(-4px, -7px);
-}
-
-.card-tilt:hover .glyph {
-  transform: rotate(135deg);
 }
 
 .card-shine {
@@ -468,20 +351,8 @@ h1 {
   animation: spin 2s linear infinite;
 }
 
-.card-border:hover .glyph {
-  transform: rotate(360deg);
-}
-
 .card-float {
   animation: rise .75s .5s var(--ease) both;
-}
-
-.card-float .glyph {
-  animation: float 3s ease-in-out infinite;
-}
-
-.card-float:hover .glyph {
-  animation-duration: 1.2s;
 }
 
 .card-scan {
@@ -506,18 +377,8 @@ h1 {
   animation: scan 1.8s linear infinite;
 }
 
-.card-scan:hover .glyph {
-  transform: scale(1.1);
-}
-
 .card-flip {
   animation: rise .75s .66s var(--ease) both;
-}
-
-.card-flip:hover .glyph,
-.card-flip:focus-visible .glyph {
-  transform: rotateY(180deg);
-  background: transparent;
 }
 
 footer {
@@ -570,18 +431,6 @@ footer strong {
 @keyframes spin {
   to {
     transform: rotate(360deg);
-  }
-}
-
-@keyframes float {
-
-  0%,
-  100% {
-    transform: translateY(0) rotate(0);
-  }
-
-  50% {
-    transform: translateY(-10px) rotate(6deg);
   }
 }
 
