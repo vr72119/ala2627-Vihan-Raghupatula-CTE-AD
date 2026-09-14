@@ -68,29 +68,29 @@
 
     <section class="build-grid shell">
       <article class="build-card build-card-wide reveal">
-        <div class="build-image build-lowrider"><span>01 / LOWRIDER</span></div>
+        <div class="build-image build-lowrider"><span>01 / 1964 IMPALA</span></div>
         <div class="build-info">
           <p class="card-kicker">The boulevard classic</p>
           <h3>Low, slow,<br>legendary.</h3>
-          <p>Hydraulic attitude, hand-finished details, and enough shine to catch the whole block.</p><a href="#contact"
-            class="arrow-link">See the culture <span>↗</span></a>
+          <p>Gold trim, six pumps, hand-finished details, and enough shine to catch the whole block.</p><a
+            href="#contact" class="arrow-link">See the culture <span>↗</span></a>
         </div>
       </article>
       <article class="build-card reveal" style="--delay: .1s">
-        <div class="build-image build-supercar"><span>02 / SUPERCAR</span></div>
+        <div class="build-image build-supercar"><span>02 / IMPALA / GOLD TRIM</span></div>
         <div class="build-info">
           <p class="card-kicker">The midnight missile</p>
           <h3>Fast looks<br>faster.</h3>
-          <p>Carbon fiber, custom aero, and a stance that never asks permission.</p><a href="#contact"
+          <p>Long body, candy paint, and hydraulics that make an entrance before the music does.</p><a href="#contact"
             class="arrow-link">See the speed <span>↗</span></a>
         </div>
       </article>
       <article class="build-card reveal" style="--delay: .2s">
-        <div class="build-image build-truck"><span>03 / TRUCK</span></div>
+        <div class="build-image build-truck"><span>03 / IMPALA / AFTER DARK</span></div>
         <div class="build-info">
           <p class="card-kicker">The street king</p>
           <h3>Big presence.<br>Clean lines.</h3>
-          <p>Purpose-built trucks with a little more muscle and a lot more California.</p><a href="#contact"
+          <p>Polished gold details, low stance, and a street presence that belongs to Los Angeles.</p><a href="#contact"
             class="arrow-link">See the stance <span>↗</span></a>
         </div>
       </article>
@@ -107,8 +107,12 @@
         <p class="build-status" id="build-status">Chrome spoke wheels. Candy paint. Classic West Coast attitude.</p>
       </div>
       <div class="shop-display reveal" style="--delay: .12s">
-        <div class="display-car display-lowrider" id="display-car" role="img" aria-label="Selected custom car style">
-        </div><span class="display-stamp">CUSTOM<br>ORIGINAL</span>
+        <div class="workshop-photo" role="img"
+          aria-label="A custom car workshop with a classic lowrider under bright shop lights"></div>
+        <div class="workshop-caption"><span>INSIDE THE SHOP</span><b>Where the low gets lower.</b></div>
+        <div class="display-car display-lowrider" id="display-car" role="img"
+          aria-label="Selected 1960s Impala custom car style"></div>
+        <span class="display-stamp">CUSTOM<br>ORIGINAL</span>
       </div>
     </section>
 
@@ -131,13 +135,13 @@
       different</span></footer>
 
   <script>
-    const buildDescriptions = { lowrider: 'Chrome spoke wheels. Candy paint. Classic West Coast attitude.', supercar: 'Carbon aero. Track-bred details. All eyes on the exit.', truck: 'Wide stance. Clean lines. Serious street presence.' };
+    const buildDescriptions = { lowrider: 'Gold trim. Six pumps. Classic West Coast attitude.', supercar: 'Long body. Candy paint. All eyes on the exit.', truck: 'Low stance. Clean lines. Serious street presence.' };
     const displayCar = document.querySelector('#display-car');
     const buildStatus = document.querySelector('#build-status');
     document.querySelectorAll('.build-tab').forEach((tab) => tab.addEventListener('click', () => {
       const build = tab.dataset.build;
       displayCar.className = `display-car display-${build}`;
-      displayCar.setAttribute('aria-label', `${build} custom car style`);
+      displayCar.setAttribute('aria-label', `${build} 1960s Impala custom car style`);
       buildStatus.textContent = buildDescriptions[build];
       document.querySelector('.build-tab.is-active').classList.remove('is-active');
       document.querySelector('.build-tab[aria-selected="true"]').setAttribute('aria-selected', 'false');
