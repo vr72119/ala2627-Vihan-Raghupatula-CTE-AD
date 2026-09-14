@@ -4,123 +4,93 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="KCRSN archive merch. Hoodie, tee, vinyl.">
-  <title>KCRSN // ARCHIVE</title>
+  <meta name="description" content="A playable neon rhythm platform game with three original levels.">
+  <title>Geometry Rush // Dash</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-  <div class="crt-noise" aria-hidden="true"></div>
-  <div class="scanlines" aria-hidden="true"></div>
+  <main class="game-shell">
+    <header class="topbar">
+      <div class="logo"><span>◆</span> GEOMETRY <b>RUSH</b></div>
+      <div class="top-actions"><span class="best-label">BEST <b id="best-score">0%</b></span><button class="icon-button"
+          id="sound-button" aria-label="Toggle sound">♪</button></div>
+    </header>
 
-  <header class="site-header shell">
-    <a class="wordmark" href="#top" aria-label="Archive home">KCRSN<span>//</span>ARCHIVE</a>
-    <nav aria-label="Main navigation"><a href="#drop">01</a><a href="#lookbook">02</a><a href="#about">03</a></nav>
-    <button class="cart-button" id="cart-button" aria-label="Open shopping bag">Bag <span
-        id="cart-count">0</span></button>
-  </header>
-
-  <main id="top">
-    <section class="hero shell">
-      <div class="hero-screen">
-        <div class="hero-photo">
-          <div class="ken-photo" role="img" aria-label="Ken Carson portrait"></div>
-        </div>
-        <div class="hero-glitch" aria-hidden="true">KCRSN</div>
-        <span class="cross-mark" aria-hidden="true">†</span>
-        <div class="hero-copy">
-          <p class="eyebrow">DROP 01 / 2026</p>
-          <h1><em>KCRSN</em><br>ARCHIVE</h1>
-          <a class="enter-button" href="#drop">Enter <span>↗</span></a>
-        </div>
-        <div class="screen-meta"><span>CH. 013</span><span>NO SIGNAL / ALL FEELING</span><span>00:13:37</span></div>
-        <div class="tv-static" aria-hidden="true"></div>
+    <section class="menu-screen" id="menu-screen">
+      <p class="eyebrow">AUTO-RUN PLATFORMER</p>
+      <h1>Dash<br><em>the line.</em></h1>
+      <p class="menu-copy">Jump the hazards. Chase the pulse. Clear every level.</p>
+      <div class="level-grid" id="level-grid" aria-label="Choose a level">
+        <button class="level-card is-selected" data-level="0"><span class="level-number">01</span><span
+            class="level-name">Neon Start</span><span class="level-meta">EASY / 1:00</span></button>
+        <button class="level-card" data-level="1"><span class="level-number">02</span><span
+            class="level-name">Redline</span><span class="level-meta">NORMAL / 1:15</span></button>
+        <button class="level-card" data-level="2"><span class="level-number">03</span><span
+            class="level-name">Aftershock</span><span class="level-meta">HARD / 1:30</span></button>
       </div>
+      <button class="play-button" id="play-button">Play level <span>▶</span></button>
+      <p class="controls-hint">SPACE / CLICK / TAP TO JUMP</p>
     </section>
 
-    <section class="ticker" aria-label="Drop announcement">
-      <div class="ticker-track"><span>KCRSN</span><b>✦</b><span>ARCHIVE</span><b>✦</b><span>DROP
-          01</span><b>✦</b><span>LIMITED RUN</span><b>✦</b><span>KCRSN</span><b>✦</b><span>ARCHIVE</span><b>✦</b></div>
-    </section>
-
-    <section class="drop shell" id="drop">
-      <div class="section-heading">
-        <p class="eyebrow">01 / drop</p>
-        <h2><em>01</em></h2>
+    <section class="play-screen is-hidden" id="play-screen">
+      <div class="hud"><button class="back-button" id="back-button">← Levels</button><span id="level-title">Neon
+          Start</span><span id="progress-label">0%</span></div>
+      <div class="progress-track"><span id="progress-bar"></span></div>
+      <canvas id="game-canvas" aria-label="Playable Geometry Rush game"></canvas>
+      <div class="game-overlay is-hidden" id="game-overlay">
+        <p id="overlay-kicker">LEVEL COMPLETE</p>
+        <h2 id="overlay-title">Nice run.</h2>
+        <p id="overlay-copy">You made it to the end.</p><button class="play-button" id="overlay-button">Play again
+          <span>↻</span></button>
       </div>
-      <div class="product-grid">
-        <article class="product-card product-hoodie">
-          <div class="product-photo"><span class="product-number">001</span><button class="quick-view"
-              aria-label="View hoodie">+</button></div>
-          <div class="product-info">
-            <div>
-              <h3>Hoodie</h3>
-            </div><strong>$120</strong>
-          </div>
-          <button class="add-button" data-product="Hoodie">Add to bag <span>+</span></button>
-        </article>
-        <article class="product-card product-tee">
-          <div class="product-photo"><span class="product-number">002</span><button class="quick-view"
-              aria-label="View tee">+</button></div>
-          <div class="product-info">
-            <div>
-              <h3>Tee</h3>
-            </div><strong>$55</strong>
-          </div>
-          <button class="add-button" data-product="Tee">Add to bag <span>+</span></button>
-        </article>
-        <article class="product-card product-vinyl">
-          <div class="product-photo"><span class="product-number">003</span><button class="quick-view"
-              aria-label="View vinyl">+</button></div>
-          <div class="product-info">
-            <div>
-              <h3>Vinyl</h3>
-            </div><strong>$40</strong>
-          </div>
-          <button class="add-button" data-product="Vinyl">Add to bag <span>+</span></button>
-        </article>
-      </div>
-    </section>
-
-    <section class="lookbook shell" id="lookbook">
-      <div class="lookbook-static lookbook-one" aria-hidden="true"></div>
-      <div class="lookbook-copy">
-        <p class="eyebrow">02 / visual</p>
-        <h2><em>02</em></h2>
-        <a class="text-link" href="#drop">Shop <span>↓</span></a>
-      </div>
-      <div class="lookbook-static lookbook-two" aria-hidden="true"></div>
-    </section>
-
-    <section class="about shell" id="about">
-      <div>
-        <p class="eyebrow">03 / archive</p>
-        <h2><em>03</em></h2>
-      </div>
+      <p class="play-hint">SPACE / W / ↑ / TAP</p>
     </section>
   </main>
 
-  <footer class="site-footer shell"><span>KCRSN // ARCHIVE</span><span>DROP 01 / 2026</span></footer>
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
   <script>
-    const cartCount = document.querySelector('#cart-count');
-    const toast = document.querySelector('#toast');
-    let cartTotal = 0;
-    document.querySelectorAll('.add-button').forEach((button) => button.addEventListener('click', () => {
-      cartTotal += 1;
-      cartCount.textContent = cartTotal;
-      toast.textContent = `${button.dataset.product} added to bag`;
-      toast.classList.add('is-visible');
-      window.setTimeout(() => toast.classList.remove('is-visible'), 2200);
-      button.innerHTML = 'Added <span>✓</span>';
-      window.setTimeout(() => { button.innerHTML = 'Add to bag <span>+</span>'; }, 1500);
-    }));
-    document.querySelectorAll('.quick-view').forEach((button) => button.addEventListener('click', () => {
-      toast.textContent = 'Full details dropping soon';
-      toast.classList.add('is-visible');
-      window.setTimeout(() => toast.classList.remove('is-visible'), 2200);
-    }));
+    const canvas = document.querySelector('#game-canvas');
+    const context = canvas.getContext('2d');
+    const menuScreen = document.querySelector('#menu-screen');
+    const playScreen = document.querySelector('#play-screen');
+    const levelGrid = document.querySelector('#level-grid');
+    const playButton = document.querySelector('#play-button');
+    const overlay = document.querySelector('#game-overlay');
+    const overlayButton = document.querySelector('#overlay-button');
+    const overlayKicker = document.querySelector('#overlay-kicker');
+    const overlayTitle = document.querySelector('#overlay-title');
+    const overlayCopy = document.querySelector('#overlay-copy');
+    const levelTitle = document.querySelector('#level-title');
+    const progressBar = document.querySelector('#progress-bar');
+    const progressLabel = document.querySelector('#progress-label');
+    const bestScore = document.querySelector('#best-score');
+    const levelNames = ['Neon Start', 'Redline', 'Aftershock'];
+    const levels = [
+      { speed: 5.2, length: 5200, color: '#26e6c8', accent: '#ff4f81', obstacles: [[520, 'spike'], [780, 'spike'], [1050, 'block'], [1330, 'spike'], [1510, 'spike'], [1780, 'block'], [2140, 'spike'], [2400, 'spike'], [2730, 'block'], [3070, 'spike'], [3290, 'spike'], [3600, 'block'], [3950, 'spike'], [4240, 'spike'], [4510, 'block'], [4820, 'spike']] },
+      { speed: 6.1, length: 6400, color: '#ff4f81', accent: '#ffd447', obstacles: [[430, 'spike'], [680, 'spike'], [910, 'spike'], [1180, 'block'], [1450, 'spike'], [1640, 'spike'], [1920, 'block'], [2240, 'spike'], [2450, 'spike'], [2680, 'spike'], [2950, 'block'], [3260, 'spike'], [3470, 'spike'], [3730, 'block'], [4050, 'spike'], [4270, 'spike'], [4540, 'spike'], [4860, 'block'], [5220, 'spike'], [5490, 'spike'], [5820, 'block'], [6150, 'spike']] },
+      { speed: 7, length: 7600, color: '#a574ff', accent: '#ff5d45', obstacles: [[400, 'spike'], [610, 'spike'], [820, 'spike'], [1040, 'spike'], [1320, 'block'], [1630, 'spike'], [1810, 'spike'], [2020, 'spike'], [2300, 'block'], [2630, 'spike'], [2840, 'spike'], [3050, 'spike'], [3310, 'block'], [3650, 'spike'], [3880, 'spike'], [4140, 'spike'], [4420, 'block'], [4750, 'spike'], [4980, 'spike'], [5200, 'spike'], [5500, 'block'], [5850, 'spike'], [6100, 'spike'], [6380, 'spike'], [6700, 'block'], [7060, 'spike'], [7320, 'spike']] }
+    ];
+    let selectedLevel = 0;
+    let game = null;
+    let animationFrame = 0;
+    let soundOn = true;
+
+    const resizeCanvas = () => { const bounds = canvas.getBoundingClientRect(); const ratio = window.devicePixelRatio || 1; canvas.width = bounds.width * ratio; canvas.height = bounds.height * ratio; context.setTransform(ratio, 0, 0, ratio, 0, 0); };
+    const selectLevel = (index) => { selectedLevel = index; document.querySelector('.level-card.is-selected').classList.remove('is-selected'); document.querySelector(`[data-level="${index}"]`).classList.add('is-selected'); };
+    const jump = () => { if (!game || game.status !== 'playing') return; if (game.player.grounded) { game.player.velocityY = -13.5; game.player.grounded = false; } };
+    const startGame = () => { const level = levels[selectedLevel]; menuScreen.classList.add('is-hidden'); playScreen.classList.remove('is-hidden'); levelTitle.textContent = levelNames[selectedLevel]; overlay.classList.add('is-hidden'); resizeCanvas(); game = { status: 'playing', camera: 0, distance: 0, level, player: { x: 120, y: 0, size: 34, velocityY: 0, grounded: true, rotation: 0 }, particles: [] }; window.cancelAnimationFrame(animationFrame); animationFrame = window.requestAnimationFrame(loop); };
+    const endGame = (won) => { if (!game) return; game.status = won ? 'won' : 'lost'; overlayKicker.textContent = won ? 'LEVEL COMPLETE' : 'CRASHED'; overlayTitle.textContent = won ? 'Clean run.' : 'Try again.'; overlayCopy.textContent = won ? `${levelNames[selectedLevel]} cleared.` : 'The line is still waiting.'; overlayButton.innerHTML = won ? 'Next level <span>→</span>' : 'Restart <span>↻</span>'; overlay.classList.remove('is-hidden'); if (won) { const value = 100; bestScore.textContent = `${Math.max(value, Number.parseInt(bestScore.textContent, 10))}%`; } };
+    const collide = (obstacle, playerX, playerY) => { const obstacleX = obstacle[0] - game.camera; const width = obstacle[1] === 'block' ? 38 : 30; const height = obstacle[1] === 'block' ? 42 : 32; const ground = canvas.clientHeight - 74; return playerX + 27 > obstacleX && playerX + 7 < obstacleX + width && playerY + 34 > ground - height && playerY + 5 < ground; };
+    const drawBackground = (width, height) => { const { color, accent } = game.level; context.fillStyle = '#0b0d16'; context.fillRect(0, 0, width, height); const gradient = context.createLinearGradient(0, 0, width, height); gradient.addColorStop(0, `${color}22`); gradient.addColorStop(1, `${accent}08`); context.fillStyle = gradient; context.fillRect(0, 0, width, height); context.strokeStyle = '#ffffff0d'; context.lineWidth = 1; for (let x = -(game.camera % 56); x < width; x += 56) { context.beginPath(); context.moveTo(x, 0); context.lineTo(x, height); context.stroke(); } for (let y = 60; y < height; y += 56) { context.beginPath(); context.moveTo(0, y); context.lineTo(width, y); context.stroke(); } };
+    const drawObstacle = (obstacle, ground) => { const x = obstacle[0] - game.camera; if (x < -60 || x > canvas.clientWidth + 60) return; context.fillStyle = game.level.accent; context.shadowColor = game.level.accent; context.shadowBlur = 16; if (obstacle[1] === 'spike') { context.beginPath(); context.moveTo(x, ground); context.lineTo(x + 16, ground - 32); context.lineTo(x + 32, ground); context.closePath(); context.fill(); } else { context.fillRect(x, ground - 42, 40, 42); context.fillStyle = '#ffffff44'; context.fillRect(x + 7, ground - 34, 7, 7); } context.shadowBlur = 0; };
+    const draw = () => { const width = canvas.clientWidth; const height = canvas.clientHeight; const ground = height - 74; drawBackground(width, height); context.fillStyle = '#ffffff16'; context.fillRect(0, ground, width, 2); context.fillStyle = game.level.color; context.shadowColor = game.level.color; context.shadowBlur = 14; context.fillRect(0, ground + 2, width, 4); context.shadowBlur = 0; game.level.obstacles.forEach((obstacle) => drawObstacle(obstacle, ground)); const player = game.player; context.save(); context.translate(player.x + player.size / 2, player.y + player.size / 2); context.rotate(player.rotation); context.fillStyle = game.level.color; context.shadowColor = game.level.color; context.shadowBlur = 18; context.fillRect(-player.size / 2, -player.size / 2, player.size, player.size); context.shadowBlur = 0; context.fillStyle = '#101420'; context.fillRect(-8, -8, 6, 6); context.fillRect(3, -8, 6, 6); context.restore(); };
+    const update = () => { const ground = canvas.clientHeight - 74; const player = game.player; game.distance += game.level.speed; game.camera = Math.max(0, game.distance - 120); player.velocityY += .7; player.y += player.velocityY; if (player.y + player.size >= ground) { player.y = ground - player.size; player.velocityY = 0; player.grounded = true; } else player.grounded = false; player.rotation += game.level.speed * .035; if (game.level.obstacles.some((obstacle) => collide(obstacle, player.x, player.y))) endGame(false); if (game.distance >= game.level.length) endGame(true); const progress = Math.min(100, Math.floor(game.distance / game.level.length * 100)); progressBar.style.width = `${progress}%`; progressLabel.textContent = `${progress}%`; };
+    const loop = () => { if (!game || game.status !== 'playing') { draw(); return; } update(); draw(); animationFrame = window.requestAnimationFrame(loop); };
+    levelGrid.addEventListener('click', (event) => { const card = event.target.closest('.level-card'); if (card) selectLevel(Number(card.dataset.level)); });
+    playButton.addEventListener('click', startGame); overlayButton.addEventListener('click', () => { if (game && game.status === 'won' && selectedLevel < levels.length - 1) selectLevel(selectedLevel + 1); startGame(); });
+    document.querySelector('#back-button').addEventListener('click', () => { window.cancelAnimationFrame(animationFrame); playScreen.classList.add('is-hidden'); menuScreen.classList.remove('is-hidden'); });
+    document.querySelector('#sound-button').addEventListener('click', (event) => { soundOn = !soundOn; event.currentTarget.textContent = soundOn ? '♪' : '×'; });
+    window.addEventListener('resize', () => { if (!playScreen.classList.contains('is-hidden')) resizeCanvas(); }); window.addEventListener('keydown', (event) => { if (['Space', 'ArrowUp', 'KeyW'].includes(event.code)) { event.preventDefault(); jump(); } if (event.code === 'KeyR' && game && game.status !== 'playing') startGame(); }); canvas.addEventListener('pointerdown', jump);
   </script>
 </body>
 
