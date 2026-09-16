@@ -49,7 +49,7 @@
       </div>
 
       <button id="start-button" class="play-button" type="button">Start race <span>▶</span></button>
-      <p class="controls-hint">↑ / ↓ or W / S to switch lanes • H or HORN to clear traffic</p>
+      <p class="controls-hint">↑ / ↓ or W / S to switch lanes • H or HORN to clear traffic • HOLD SPACE to boost</p>
     </section>
 
     <section class="game-screen is-hidden" id="game-screen">
@@ -188,7 +188,14 @@
     function spawnEnemy() {
       const laneCenters = getLaneCenters();
       const lane = Math.floor(Math.random() * 4);
-      const type = randomFrom(carTypes);
+      const isPolice = Math.random() < 0.12;
+      const type = isPolice ? {
+        name: 'police',
+        color: '#e5e7eb',
+        roof: '#f8fafc',
+        width: 82,
+        height: 54
+      } : randomFrom(carTypes);
       const enemy = {
         lane,
         x: canvas.width + 80,
@@ -198,6 +205,9 @@
         color: type.color,
         roof: type.roof,
         type: type.name,
+        isPolice,
+        changingLane: false,
+        signalTimer: 0,
         speed: 0,
         drift: (Math.random() - 0.5) * 2
       };
@@ -229,6 +239,8 @@
         rumble: 0,
         rumblePhase: 0,
         hornTimer: 0,
+        boosting: false,
+        boost: 1,
         player: makePlayer(),
         enemies: [],
         coins: [],
@@ -257,13 +269,15 @@
       menuScreen.classList.remove('is-hidden');
     }
 
-    function endRace() {
+    function endRace(reason = 'crash') {
       if (!game || !game.running) return;
       game.running = false;
       gameOver.classList.remove('is-hidden');
-      gameOverKicker.textContent = 'RACE FAILED';
-      gameOverTitle.textContent = 'Crash!';
-      gameOverCopy.textContent = `You collected ${Math.floor(game.score)} coins.`;
+      gameOverKicker.textContent = reason === 'police' ? 'PULLED OVER' : 'RACE FAILED';
+      gameOverTitle.textContent = reason === 'police' ? 'Caught!' : 'Crash!';
+      gameOverCopy.textContent = reason === 'police'
+        ? `The police caught you boosting with ${Math.floor(game.score)} coins.`
+        : `You collected ${Math.floor(game.score)} coins.`;
       saveBestScore(game.score);
     }
 
@@ -287,18 +301,20 @@
       game.rumble = Math.max(game.rumble, 0.4);
 
       const laneCenters = getLaneCenters();
-      const target = game.enemies
-        .filter((enemy) => enemy.x > game.player.x && enemy.x < game.player.x + 360)
-        .sort((a, b) => a.x - b.x)[0];
+      const targets = game.enemies
+        .filter((enemy) => !enemy.isPolice && enemy.lane === game.player.lane && enemy.x > game.player.x && enemy.x < game.player.x + 420)
+        .sort((a, b) => a.x - b.x);
 
-      if (!target) return;
-      const options = [target.lane - 1, target.lane + 1].sort(() => Math.random() - 0.5);
-      const openLane = options.find((lane) => canUseLane(target, lane));
-      if (openLane === undefined) return;
+      for (const target of targets) {
+        const options = [target.lane - 1, target.lane + 1].sort(() => Math.random() - 0.5);
+        const openLane = options.find((lane) => canUseLane(target, lane));
+        if (openLane === undefined) continue;
 
-      target.lane = openLane;
-      target.targetY = laneCenters[openLane];
-      target.changingLane = true;
+        target.lane = openLane;
+        target.targetY = laneCenters[openLane];
+        target.changingLane = true;
+        target.signalTimer = 900;
+      }
     }
 
     function detectCollision(a, b) {
@@ -318,6 +334,9 @@
       game.rumblePhase += delta * 0.08;
       game.flash = Math.max(0, game.flash - delta * 0.01);
       game.hornTimer = Math.max(0, game.hornTimer - delta);
+      game.boost = game.boosting
+        ? Math.min(1.5, game.boost + delta * 0.00025)
+        : Math.max(1, game.boost - delta * 0.0005);
 
       if (game.score >= game.level * 10) {
         game.level += 1;
@@ -328,7 +347,8 @@
 
       game.enemyTimer -= delta;
       if (game.enemyTimer <= 0) {
-        spawnEnemy();
+        const hasNearbySpawn = game.enemies.some((enemy) => enemy.x > canvas.width - 260);
+        if (!hasNearbySpawn) spawnEnemy();
         game.enemyTimer = game.difficulty.spawn * 1000;
       }
 
@@ -340,10 +360,18 @@
 
       for (let i = game.enemies.length - 1; i >= 0; i -= 1) {
         const enemy = game.enemies[i];
-        enemy.x -= delta * (0.035 * game.difficulty.speed + 0.05);
+        enemy.x -= delta * (0.035 * game.difficulty.speed + 0.05) * game.boost;
+        enemy.signalTimer = Math.max(0, enemy.signalTimer - delta);
         if (enemy.changingLane) {
           enemy.y += (enemy.targetY - enemy.y) * Math.min(1, delta * 0.002);
           if (Math.abs(enemy.targetY - enemy.y) < 1) enemy.changingLane = false;
+        }
+
+        if (enemy.isPolice && game.boosting && game.boost > 1.05 && enemy.x > game.player.x - 40 && enemy.x < game.player.x + 420) {
+          game.rumble = 1;
+          createParticles(game.player.x, game.player.y, '#facc15', 18);
+          endRace('police');
+          return;
         }
 
         if (detectCollision(game.player, enemy)) {
@@ -360,7 +388,7 @@
 
       for (let i = game.coins.length - 1; i >= 0; i -= 1) {
         const coin = game.coins[i];
-        coin.x -= delta * (0.035 * game.difficulty.speed + 0.05);
+        coin.x -= delta * (0.035 * game.difficulty.speed + 0.05) * game.boost;
         coin.pulse += 0.12;
 
         const distance = Math.hypot(game.player.x - coin.x, game.player.y - coin.y);
@@ -390,7 +418,7 @@
       scoreValue.textContent = Math.floor(game.score);
     }
 
-    function drawCar(x, y, width, height, color, roofColor = '#dbeafe', isPlayer = false, type = 'sedan') {
+    function drawCar(x, y, width, height, color, roofColor = '#dbeafe', isPlayer = false, type = 'sedan', signalTimer = 0) {
       const shakeX = Math.sin(game.rumblePhase * 18 + x * 0.3) * (game.rumble ? 2.8 : 0.7);
       const shakeY = Math.cos(game.rumblePhase * 22 + y * 0.4) * (game.rumble ? 2.1 : 0.4);
 
@@ -429,6 +457,13 @@
         ctx.fillRect(width * 0.16, -height * 0.34, width * 0.2, height * 0.68);
       }
 
+      if (type === 'police') {
+        ctx.fillStyle = '#2563eb';
+        ctx.fillRect(-8, -height * 0.38, 8, 7);
+        ctx.fillStyle = '#dc2626';
+        ctx.fillRect(1, -height * 0.38, 8, 7);
+      }
+
       ctx.fillStyle = '#dbeafe';
       ctx.fillRect(-width / 2 + 12, -height / 2 + 10, width * 0.25, 8);
       ctx.fillRect(-width / 2 + 12, height / 2 - 18, width * 0.25, 8);
@@ -445,6 +480,12 @@
         ctx.fillStyle = '#fbbf24';
         ctx.fillRect(width / 2 - 4, -height / 2 + 10, 5, 10);
         ctx.fillRect(width / 2 - 4, height / 2 - 20, 5, 10);
+      }
+
+      if (!isPlayer && signalTimer > 0 && Math.floor(signalTimer / 120) % 2 === 0) {
+        ctx.fillStyle = '#f97316';
+        ctx.fillRect(width / 2 - 2, -height / 2 + 5, 7, 7);
+        ctx.fillRect(width / 2 - 2, height / 2 - 12, 7, 7);
       }
 
       ctx.restore();
@@ -587,6 +628,12 @@
         ctx.font = 'bold 16px monospace';
         ctx.fillText('HONK!', canvas.width / 2 - 28, 34);
       }
+
+      ctx.fillStyle = 'rgba(17, 17, 17, 0.8)';
+      ctx.fillRect(canvas.width / 2 - 58, 48, 116, 24);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 12px monospace';
+      ctx.fillText(`SPEED ${game.boost.toFixed(1)}X`, canvas.width / 2 - 48, 65);
     }
 
     function drawGame() {
@@ -600,7 +647,7 @@
       }
 
       for (const enemy of game.enemies) {
-        drawCar(enemy.x, enemy.y, enemy.width, enemy.height, enemy.color, enemy.roof, false, enemy.type);
+        drawCar(enemy.x, enemy.y, enemy.width, enemy.height, enemy.color, enemy.roof, false, enemy.type, enemy.signalTimer);
       }
 
       drawCar(game.player.x, game.player.y, game.player.width, game.player.height, game.player.color, '#dbeafe', true);
@@ -641,6 +688,14 @@
       if (event.key.toLowerCase() === 'h') {
         honk();
       }
+      if (event.code === 'Space') {
+        event.preventDefault();
+        if (game?.running) game.boosting = true;
+      }
+    });
+
+    document.addEventListener('keyup', (event) => {
+      if (event.code === 'Space' && game) game.boosting = false;
     });
 
     canvas.addEventListener('pointerdown', (event) => {
