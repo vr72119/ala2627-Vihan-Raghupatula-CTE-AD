@@ -2,95 +2,595 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A playable neon rhythm platform game with three original levels.">
-  <title>Geometry Rush // Dash</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description"
+    content="Retro highway racer game with bright pixel-art visuals and smooth arcade gameplay." />
+  <title>Pixel Highway Rush</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
   <main class="game-shell">
     <header class="topbar">
-      <div class="logo"><span>◆</span> GEOMETRY <b>RUSH</b></div>
-      <div class="top-actions"><span class="best-label">BEST <b id="best-score">0%</b></span><button class="icon-button"
-          id="sound-button" aria-label="Toggle sound">♪</button></div>
+      <div class="brand">
+        <span class="brand-mark">▣</span>
+        <span>PIXEL</span>
+        <strong>HIGHWAY</strong>
+      </div>
+
+      <div class="topbar-meta">
+        <div class="score-box">
+          <span class="label">BEST</span>
+          <strong id="best-score">0</strong>
+        </div>
+        <button id="music-toggle" class="icon-button" aria-label="Toggle music">♪</button>
+      </div>
     </header>
 
     <section class="menu-screen" id="menu-screen">
-      <p class="eyebrow">AUTO-RUN PLATFORMER</p>
-      <h1>Dash<br><em>the line.</em></h1>
-      <p class="menu-copy">Jump the hazards. Chase the pulse. Clear every level.</p>
-      <div class="level-grid" id="level-grid" aria-label="Choose a level">
-        <button class="level-card is-selected" data-level="0"><span class="level-number">01</span><span
-            class="level-name">Neon Start</span><span class="level-meta">EASY / 1:00</span></button>
-        <button class="level-card" data-level="1"><span class="level-number">02</span><span
-            class="level-name">Redline</span><span class="level-meta">NORMAL / 1:15</span></button>
-        <button class="level-card" data-level="2"><span class="level-number">03</span><span
-            class="level-name">Aftershock</span><span class="level-meta">HARD / SHIP</span></button>
+      <p class="eyebrow">NEON ARCADE • SPEEDRUN MODE</p>
+      <h1>HIGHWAY<br /><em>RUSH</em></h1>
+      <p class="menu-copy">Dodge the traffic, keep your combo alive, and push your score into the stratosphere.</p>
+
+      <div class="difficulty-panel" aria-label="Difficulty selection">
+        <button class="difficulty-card is-selected" data-difficulty="0">
+          <span class="difficulty-name">CITRUS</span>
+          <span class="difficulty-meta">Easy / 1x</span>
+        </button>
+        <button class="difficulty-card" data-difficulty="1">
+          <span class="difficulty-name">BLAST</span>
+          <span class="difficulty-meta">Normal / 1.4x</span>
+        </button>
+        <button class="difficulty-card" data-difficulty="2">
+          <span class="difficulty-name">MAX</span>
+          <span class="difficulty-meta">Hard / 1.9x</span>
+        </button>
       </div>
-      <button class="play-button" id="play-button">Play level <span>▶</span></button>
-      <p class="controls-hint">SPACE / CLICK / TAP TO JUMP</p>
+
+      <button id="start-button" class="play-button" type="button">Start race <span>▶</span></button>
+      <p class="controls-hint">A / D or ← / → or swipe to dodge</p>
     </section>
 
-    <section class="play-screen is-hidden" id="play-screen">
-      <div class="hud"><button class="back-button" id="back-button">← Levels</button><span><b id="level-title">Neon
-            Start</b><i id="mode-label">CUBE</i></span><span id="progress-label">0%</span></div>
-      <div class="progress-track"><span id="progress-bar"></span></div>
-      <canvas id="game-canvas" aria-label="Playable Geometry Rush game"></canvas>
-      <div class="game-overlay is-hidden" id="game-overlay">
-        <p id="overlay-kicker">LEVEL COMPLETE</p>
-        <h2 id="overlay-title">Nice run.</h2>
-        <p id="overlay-copy">You made it to the end.</p><button class="play-button" id="overlay-button">Play again
-          <span>↻</span></button>
+    <section class="game-screen is-hidden" id="game-screen">
+      <div class="hud">
+        <button class="back-button" id="back-button" type="button">← Menu</button>
+        <div class="hud-center">
+          <span class="hud-label">SCORE</span>
+          <strong id="score-value">0</strong>
+        </div>
+        <div class="hud-right">
+          <span class="hud-label">LEVEL</span>
+          <strong id="level-value">1</strong>
+        </div>
       </div>
-      <p class="play-hint">SPACE / W / ↑ / HOLD TO FLY</p>
+
+      <canvas id="game-canvas" width="960" height="540" aria-label="Highway racer game"></canvas>
+
+      <div id="game-over" class="game-over is-hidden" aria-live="polite">
+        <p id="game-over-kicker">RACE FAILED</p>
+        <h2 id="game-over-title">Crash!</h2>
+        <p id="game-over-copy">Your run ended in the traffic lane.</p>
+        <button id="retry-button" class="play-button" type="button">Retry <span>↻</span></button>
+      </div>
     </section>
   </main>
 
   <script>
-    const canvas = document.querySelector('#game-canvas');
-    const context = canvas.getContext('2d');
-    const menuScreen = document.querySelector('#menu-screen');
-    const playScreen = document.querySelector('#play-screen');
-    const levelGrid = document.querySelector('#level-grid');
-    const playButton = document.querySelector('#play-button');
-    const overlay = document.querySelector('#game-overlay');
-    const overlayButton = document.querySelector('#overlay-button');
-    const overlayKicker = document.querySelector('#overlay-kicker');
-    const overlayTitle = document.querySelector('#overlay-title');
-    const overlayCopy = document.querySelector('#overlay-copy');
-    const levelTitle = document.querySelector('#level-title');
-    const progressBar = document.querySelector('#progress-bar');
-    const progressLabel = document.querySelector('#progress-label');
-    const bestScore = document.querySelector('#best-score');
-    const levelNames = ['Neon Start', 'Redline', 'Aftershock'];
-    const levels = [
-      { speed: 5.2, length: 5200, color: '#26e6c8', accent: '#ff4f81', obstacles: [[520, 'spike'], [780, 'spike'], [1050, 'block'], [1330, 'spike'], [1510, 'spike'], [1780, 'block'], [2140, 'spike'], [2400, 'spike'], [2730, 'block'], [3070, 'spike'], [3290, 'spike'], [3600, 'block'], [3950, 'spike'], [4240, 'spike'], [4510, 'block'], [4820, 'spike']] },
-      { speed: 6.1, length: 6400, color: '#ff4f81', accent: '#ffd447', obstacles: [[430, 'spike'], [680, 'spike'], [910, 'spike'], [1180, 'block'], [1450, 'spike'], [1640, 'spike'], [1920, 'block'], [2240, 'spike'], [2450, 'spike'], [2680, 'spike'], [2950, 'block'], [3260, 'spike'], [3470, 'spike'], [3730, 'block'], [4050, 'spike'], [4270, 'spike'], [4540, 'spike'], [4860, 'block'], [5220, 'spike'], [5490, 'spike'], [5820, 'block'], [6150, 'spike']] },
-      { speed: 7, length: 7600, color: '#a574ff', accent: '#ff5d45', mode: 'ship', obstacles: [[400, 'spike'], [610, 'spike'], [820, 'spike'], [1040, 'spike'], [1320, 'block'], [1630, 'spike'], [1810, 'spike'], [2020, 'spike'], [2300, 'block'], [2630, 'spike'], [2840, 'spike'], [3050, 'spike'], [3310, 'block'], [3650, 'spike'], [3880, 'spike'], [4140, 'spike'], [4420, 'block'], [4750, 'spike'], [4980, 'spike'], [5200, 'spike'], [5500, 'block'], [5850, 'spike'], [6100, 'spike'], [6380, 'spike'], [6700, 'block'], [7060, 'spike'], [7320, 'spike']] }
-    ];
-    let selectedLevel = 0;
-    let game = null;
-    let animationFrame = 0;
-    let soundOn = true;
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
 
-    const resizeCanvas = () => { const bounds = canvas.getBoundingClientRect(); const ratio = window.devicePixelRatio || 1; canvas.width = bounds.width * ratio; canvas.height = bounds.height * ratio; context.setTransform(ratio, 0, 0, ratio, 0, 0); };
-    const selectLevel = (index) => { selectedLevel = index; document.querySelector('.level-card.is-selected').classList.remove('is-selected'); document.querySelector(`[data-level="${index}"]`).classList.add('is-selected'); };
-    const jump = () => { if (!game || game.status !== 'playing') return; if (game.level.mode === 'ship') { game.player.velocityY = -6.5; return; } if (game.player.grounded) { game.player.velocityY = -13.5; game.player.grounded = false; } else { game.player.jumpBuffer = 9; } };
-    const startGame = () => { const level = levels[selectedLevel]; menuScreen.classList.add('is-hidden'); playScreen.classList.remove('is-hidden'); levelTitle.textContent = levelNames[selectedLevel]; document.querySelector('#mode-label').textContent = level.mode === 'ship' ? 'SHIP' : 'CUBE'; overlay.classList.add('is-hidden'); resizeCanvas(); game = { status: 'playing', camera: 0, distance: 0, level, input: false, player: { x: 120, y: level.mode === 'ship' ? 130 : 0, size: 34, velocityY: 0, grounded: level.mode !== 'ship', jumpBuffer: 0, rotation: 0 }, particles: [] }; window.cancelAnimationFrame(animationFrame); animationFrame = window.requestAnimationFrame(loop); };
-    const endGame = (won) => { if (!game) return; game.status = won ? 'won' : 'lost'; overlayKicker.textContent = won ? 'LEVEL COMPLETE' : 'CRASHED'; overlayTitle.textContent = won ? 'Clean run.' : 'Try again.'; overlayCopy.textContent = won ? `${levelNames[selectedLevel]} cleared.` : 'The line is still waiting.'; overlayButton.innerHTML = won ? 'Next level <span>→</span>' : 'Restart <span>↻</span>'; overlay.classList.remove('is-hidden'); if (won) { const value = 100; bestScore.textContent = `${Math.max(value, Number.parseInt(bestScore.textContent, 10))}%`; } };
-    const collide = (obstacle, playerX, playerY) => { const obstacleX = obstacle[0] - game.camera; const width = obstacle[1] === 'block' ? 38 : 30; const height = obstacle[1] === 'block' ? 42 : 32; const ground = canvas.clientHeight - 74; return playerX + 27 > obstacleX && playerX + 7 < obstacleX + width && playerY + 34 > ground - height && playerY + 5 < ground; };
-    const drawBackground = (width, height) => { const { color, accent } = game.level; context.fillStyle = '#0b0d16'; context.fillRect(0, 0, width, height); const gradient = context.createLinearGradient(0, 0, width, height); gradient.addColorStop(0, `${color}34`); gradient.addColorStop(1, `${accent}14`); context.fillStyle = gradient; context.fillRect(0, 0, width, height); context.strokeStyle = '#ffffff1c'; context.lineWidth = 1; for (let x = -(game.camera % 56); x < width; x += 56) { context.beginPath(); context.moveTo(x, 0); context.lineTo(x, height); context.stroke(); } for (let y = 60; y < height; y += 56) { context.beginPath(); context.moveTo(0, y); context.lineTo(width, y); context.stroke(); } context.fillStyle = `${color}44`; for (let x = -(game.camera % 224); x < width; x += 224) { context.fillRect(x + 12, 42, 8, 8); context.fillRect(x + 104, height - 128, 12, 12); } };
-    const drawObstacle = (obstacle, ground) => { const x = obstacle[0] - game.camera; if (x < -60 || x > canvas.clientWidth + 60) return; context.fillStyle = game.level.accent; context.shadowColor = game.level.accent; context.shadowBlur = 16; if (obstacle[1] === 'spike') { context.beginPath(); context.moveTo(x, ground); context.lineTo(x + 16, ground - 32); context.lineTo(x + 32, ground); context.closePath(); context.fill(); } else { context.fillRect(x, ground - 42, 40, 42); context.fillStyle = '#ffffff44'; context.fillRect(x + 7, ground - 34, 7, 7); } context.shadowBlur = 0; };
-    const draw = () => { const width = canvas.clientWidth; const height = canvas.clientHeight; const ground = height - 74; drawBackground(width, height); context.fillStyle = '#ffffff16'; context.fillRect(0, ground, width, 2); context.fillStyle = game.level.color; context.shadowColor = game.level.color; context.shadowBlur = 14; context.fillRect(0, ground + 2, width, 4); context.fillRect(0, 12, width, 2); context.shadowBlur = 0; game.level.obstacles.forEach((obstacle) => drawObstacle(obstacle, ground)); const player = game.player; context.save(); context.translate(player.x + player.size / 2, player.y + player.size / 2); context.rotate(player.rotation); context.fillStyle = game.level.color; context.shadowColor = game.level.color; context.shadowBlur = 18; if (game.level.mode === 'ship') { context.beginPath(); context.moveTo(-22, 16); context.lineTo(22, 0); context.lineTo(-22, -16); context.closePath(); context.fill(); context.fillStyle = '#101420'; context.fillRect(-7, -5, 7, 7); } else { context.fillRect(-player.size / 2, -player.size / 2, player.size, player.size); context.shadowBlur = 0; context.fillStyle = '#101420'; context.fillRect(-8, -8, 6, 6); context.fillRect(3, -8, 6, 6); } context.restore(); };
-    const update = () => { const ground = canvas.clientHeight - 74; const player = game.player; game.distance += game.level.speed; game.camera = Math.max(0, game.distance - 120); if (game.level.mode === 'ship') { player.velocityY += game.input ? -.55 : .5; player.velocityY = Math.max(-7, Math.min(7, player.velocityY)); player.y += player.velocityY; if (player.y < 8 || player.y + player.size > ground) endGame(false); player.rotation = player.velocityY * .055; } else { player.velocityY += .7; player.y += player.velocityY; if (player.y + player.size >= ground) { player.y = ground - player.size; player.velocityY = 0; player.grounded = true; if (player.jumpBuffer > 0) { player.jumpBuffer = 0; jump(); } } else { player.grounded = false; player.jumpBuffer = Math.max(0, player.jumpBuffer - 1); } player.rotation += game.level.speed * .035; } if (game.level.obstacles.some((obstacle) => collide(obstacle, player.x, player.y))) endGame(false); if (game.distance >= game.level.length) endGame(true); const progress = Math.min(100, Math.floor(game.distance / game.level.length * 100)); progressBar.style.width = `${progress}%`; progressLabel.textContent = `${progress}%`; };
-    const loop = () => { if (!game || game.status !== 'playing') { draw(); return; } update(); draw(); animationFrame = window.requestAnimationFrame(loop); };
-    levelGrid.addEventListener('click', (event) => { const card = event.target.closest('.level-card'); if (card) selectLevel(Number(card.dataset.level)); });
-    playButton.addEventListener('click', startGame); overlayButton.addEventListener('click', () => { if (game && game.status === 'won' && selectedLevel < levels.length - 1) selectLevel(selectedLevel + 1); startGame(); });
-    document.querySelector('#back-button').addEventListener('click', () => { window.cancelAnimationFrame(animationFrame); playScreen.classList.add('is-hidden'); menuScreen.classList.remove('is-hidden'); });
-    document.querySelector('#sound-button').addEventListener('click', (event) => { soundOn = !soundOn; event.currentTarget.textContent = soundOn ? '♪' : '×'; });
-    window.addEventListener('resize', () => { if (!playScreen.classList.contains('is-hidden')) resizeCanvas(); }); window.addEventListener('keydown', (event) => { if (['Space', 'ArrowUp', 'KeyW'].includes(event.code)) { event.preventDefault(); if (game) game.input = true; jump(); } if (event.code === 'KeyR' && game && game.status !== 'playing') startGame(); }); window.addEventListener('keyup', (event) => { if (['Space', 'ArrowUp', 'KeyW'].includes(event.code) && game) game.input = false; }); canvas.addEventListener('pointerdown', () => { if (game) game.input = true; jump(); }); canvas.addEventListener('pointerup', () => { if (game) game.input = false; }); canvas.addEventListener('pointerleave', () => { if (game) game.input = false; });
+    const menuScreen = document.getElementById('menu-screen');
+    const gameScreen = document.getElementById('game-screen');
+    const startButton = document.getElementById('start-button');
+    const retryButton = document.getElementById('retry-button');
+    const backButton = document.getElementById('back-button');
+    const gameOver = document.getElementById('game-over');
+    const gameOverTitle = document.getElementById('game-over-title');
+    const gameOverCopy = document.getElementById('game-over-copy');
+    const gameOverKicker = document.getElementById('game-over-kicker');
+    const scoreValue = document.getElementById('score-value');
+    const bestScore = document.getElementById('best-score');
+    const levelValue = document.getElementById('level-value');
+    const difficultyButtons = [...document.querySelectorAll('.difficulty-card')];
+
+    const settings = {
+      easy: { speed: 4.6, spawn: 1.35, color: '#48e5c2' },
+      normal: { speed: 6.2, spawn: 1.05, color: '#ffb703' },
+      hard: { speed: 8.1, spawn: 0.8, color: '#ff5a5f' }
+    };
+
+    let selectedDifficulty = 0;
+    let game = null;
+    let animationId = 0;
+    let lastStamp = 0;
+    let musicOn = true;
+
+    function setDifficulty(index) {
+      selectedDifficulty = index;
+      difficultyButtons.forEach((btn, i) => btn.classList.toggle('is-selected', i === index));
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(Math.max(value, min), max);
+    }
+
+    function loadBestScore() {
+      const stored = Number(localStorage.getItem('pixel-highway-best') || 0);
+      bestScore.textContent = Math.floor(stored);
+    }
+
+    function saveBestScore(score) {
+      const previous = Number(localStorage.getItem('pixel-highway-best') || 0);
+      if (score > previous) {
+        localStorage.setItem('pixel-highway-best', String(Math.floor(score)));
+        bestScore.textContent = Math.floor(score);
+      }
+    }
+
+    function makePlayer() {
+      const laneWidth = canvas.width / 3;
+      return {
+        lane: 1,
+        x: canvas.width / 2,
+        y: canvas.height - 120,
+        width: 56,
+        height: 92,
+        targetX: canvas.width / 2,
+        color: '#3bd4ff',
+        glow: '#7ee9ff',
+        tilt: 0,
+        trail: []
+      };
+    }
+
+    function randomFrom(array) {
+      return array[Math.floor(Math.random() * array.length)];
+    }
+
+    function spawnEnemy() {
+      const laneCount = 3;
+      const lane = Math.floor(Math.random() * laneCount);
+      const laneX = canvas.width / 2 - (canvas.width / 3) + (lane * canvas.width / 3) + canvas.width / 6;
+      const carColors = ['#ff4d6d', '#ffb703', '#c77dff', '#7ae582', '#f72585', '#f9c74f', '#4cc9f0'];
+      const car = {
+        lane,
+        x: laneX,
+        y: -120,
+        width: 52,
+        height: 90,
+        color: randomFrom(carColors),
+        glow: '#ffffff',
+        speed: 0,
+        drift: (Math.random() - 0.5) * 2
+      };
+
+      const typeRoll = Math.random();
+      if (typeRoll > 0.76) {
+        car.width = 62;
+        car.height = 106;
+      }
+
+      game.enemies.push(car);
+    }
+
+    function spawnPickup() {
+      const lane = Math.floor(Math.random() * 3);
+      const x = canvas.width / 2 - (canvas.width / 3) + (lane * (canvas.width / 3)) + (canvas.width / 6);
+      const pickup = {
+        x,
+        y: -70,
+        size: 18,
+        pulse: Math.random() * Math.PI * 2,
+        value: 25
+      };
+      game.pickups.push(pickup);
+    }
+
+    function createParticles(x, y, color, count) {
+      for (let i = 0; i < count; i += 1) {
+        game.particles.push({
+          x,
+          y,
+          vx: (Math.random() - 0.5) * 4,
+          vy: (Math.random() - 0.5) * 4,
+          life: 30 + Math.random() * 24,
+          maxLife: 30 + Math.random() * 24,
+          color,
+          size: 3 + Math.random() * 3
+        });
+      }
+    }
+
+    function initializeGame() {
+      const difficulty = settings[Object.keys(settings)[selectedDifficulty]];
+      const laneCenter = canvas.width / 2;
+      const laneWidth = canvas.width / 3;
+
+      game = {
+        running: true,
+        score: 0,
+        best: Number(bestScore.textContent || 0),
+        difficulty,
+        level: 1,
+        enemyTimer: 0,
+        pickupTimer: 0,
+        distance: 0,
+        roadScroll: 0,
+        player: makePlayer(),
+        enemies: [],
+        pickups: [],
+        particles: [],
+        flash: 0,
+        laneWidth,
+        laneCenter
+      };
+
+      game.player.x = laneCenter;
+      game.player.targetX = laneCenter;
+      scoreValue.textContent = '0';
+      levelValue.textContent = '1';
+      gameOver.classList.add('is-hidden');
+    }
+
+    function startRace() {
+      menuScreen.classList.add('is-hidden');
+      gameScreen.classList.remove('is-hidden');
+      initializeGame();
+      lastStamp = 0;
+      animationId = requestAnimationFrame(loop);
+    }
+
+    function goBackToMenu() {
+      cancelAnimationFrame(animationId);
+      gameScreen.classList.add('is-hidden');
+      menuScreen.classList.remove('is-hidden');
+    }
+
+    function endRace(reason) {
+      if (!game || !game.running) return;
+      game.running = false;
+      gameOver.classList.remove('is-hidden');
+
+      if (reason === 'crash') {
+        gameOverKicker.textContent = 'RACE FAILED';
+        gameOverTitle.textContent = 'Crash!';
+        gameOverCopy.textContent = 'You got clipped by traffic.';
+      } else {
+        gameOverKicker.textContent = 'NEW RECORD';
+        gameOverTitle.textContent = 'Winner!';
+        gameOverCopy.textContent = `You scored ${Math.floor(game.score)} points.`;
+      }
+
+      saveBestScore(game.score);
+    }
+
+    function movePlayer(direction) {
+      if (!game || !game.running) return;
+      const nextLane = clamp(game.player.lane + direction, 0, 2);
+      game.player.lane = nextLane;
+      const center = canvas.width / 2 - (canvas.width / 3) + (nextLane * (canvas.width / 3)) + (canvas.width / 6);
+      game.player.targetX = center;
+      game.player.tilt = direction * 0.35;
+    }
+
+    function detectCollision(a, b) {
+      return (
+        a.x - a.width / 2 < b.x + b.width / 2 &&
+        a.x + a.width / 2 > b.x - b.width / 2 &&
+        a.y - a.height / 2 < b.y + b.height / 2 &&
+        a.y + a.height / 2 > b.y - b.height / 2
+      );
+    }
+
+    function detectPickup(player, pickup) {
+      const dx = player.x - pickup.x;
+      const dy = player.y - pickup.y;
+      const distance = Math.hypot(dx, dy);
+      return distance < (player.width * 0.8 + pickup.size);
+    }
+
+    function updateGame(delta) {
+      if (!game || !game.running) return;
+
+      game.distance += delta * 0.06 * game.difficulty.speed;
+      game.score += delta * 0.02 * (1 + game.level * 0.25);
+      game.roadScroll += delta * 0.28 * game.difficulty.speed;
+      game.flash = Math.max(0, game.flash - delta * 0.01);
+
+      if (game.score > game.level * 250) {
+        game.level += 1;
+        levelValue.textContent = String(game.level);
+      }
+
+      const targetX = canvas.width / 2 - (canvas.width / 3) + (game.player.lane * (canvas.width / 3)) + (canvas.width / 6);
+      game.player.x += (targetX - game.player.x) * 0.18;
+      game.player.y = canvas.height - 125;
+      game.player.tilt *= 0.9;
+
+      game.enemyTimer -= delta;
+      game.pickupTimer -= delta;
+
+      if (game.enemyTimer <= 0) {
+        spawnEnemy();
+        game.enemyTimer = game.difficulty.spawn * 1000 / 60;
+      }
+
+      if (game.pickupTimer <= 0) {
+        spawnPickup();
+        game.pickupTimer = 2600 + Math.random() * 2000;
+      }
+
+      for (let i = game.enemies.length - 1; i >= 0; i -= 1) {
+        const enemy = game.enemies[i];
+        enemy.y += (delta * 0.28 * game.difficulty.speed * 60) + (game.level * 0.4);
+        enemy.x += Math.sin((enemy.y + game.roadScroll) * 0.04) * 0.8 + enemy.drift;
+
+        if (detectCollision(game.player, enemy)) {
+          createParticles(game.player.x, game.player.y, '#ff6b6b', 30);
+          endRace('crash');
+          return;
+        }
+
+        if (enemy.y > canvas.height + 120) {
+          game.enemies.splice(i, 1);
+        }
+      }
+
+      for (let i = game.pickups.length - 1; i >= 0; i -= 1) {
+        const pickup = game.pickups[i];
+        pickup.y += delta * 0.26 * game.difficulty.speed * 60;
+        pickup.pulse += 0.1 * delta * 0.06;
+
+        if (detectPickup(game.player, pickup)) {
+          game.score += pickup.value;
+          createParticles(pickup.x, pickup.y, '#ffd166', 18);
+          game.pickups.splice(i, 1);
+          scoreValue.textContent = Math.floor(game.score);
+          continue;
+        }
+
+        if (pickup.y > canvas.height + 40) {
+          game.pickups.splice(i, 1);
+        }
+      }
+
+      for (let i = game.particles.length - 1; i >= 0; i -= 1) {
+        const particle = game.particles[i];
+        particle.x += particle.vx * (delta * 0.06);
+        particle.y += particle.vy * (delta * 0.06);
+        particle.life -= delta * 0.06;
+
+        if (particle.life <= 0) {
+          game.particles.splice(i, 1);
+        }
+      }
+
+      scoreValue.textContent = Math.floor(game.score);
+    }
+
+    function drawPixelCar(x, y, width, height, color, glow, accent) {
+      const inner = 6;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.shadowColor = glow;
+      ctx.shadowBlur = 18;
+
+      ctx.fillStyle = color;
+      ctx.fillRect(-width / 2, -height / 2, width, height);
+
+      ctx.fillStyle = '#111827';
+      ctx.fillRect(-width / 2 + 8, -height / 2 + 10, width - 16, height - 24);
+
+      ctx.fillStyle = accent || '#f8fafc';
+      ctx.fillRect(-width / 2 + 12, -height / 2 + 16, width - 24, 16);
+      ctx.fillRect(-width / 2 + 12, height / 2 - 32, width - 24, 14);
+
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(-width / 2 + 10, -height / 2 + 10, 10, 10);
+      ctx.fillRect(width / 2 - 20, -height / 2 + 10, 10, 10);
+      ctx.fillRect(-width / 2 + 10, height / 2 - 20, 10, 10);
+      ctx.fillRect(width / 2 - 20, height / 2 - 20, 10, 10);
+
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(-width / 2 + 16, -height / 2 + 10, 4, 4);
+      ctx.fillRect(width / 2 - 20, -height / 2 + 10, 4, 4);
+      ctx.fillRect(-width / 2 + 16, height / 2 - 14, 4, 4);
+      ctx.fillRect(width / 2 - 20, height / 2 - 14, 4, 4);
+
+      ctx.restore();
+    }
+
+    function drawPickup(pickup) {
+      const bob = Math.sin(pickup.pulse) * 3;
+      ctx.save();
+      ctx.translate(pickup.x, pickup.y + bob);
+      ctx.shadowColor = '#ffd166';
+      ctx.shadowBlur = 20;
+      ctx.fillStyle = '#ffe066';
+      ctx.fillRect(-10, -10, 20, 20);
+      ctx.fillStyle = '#ffb703';
+      ctx.fillRect(-4, -10, 8, 20);
+      ctx.fillRect(-10, -4, 20, 8);
+      ctx.restore();
+    }
+
+    function drawRoad() {
+      const width = canvas.width;
+      const height = canvas.height;
+      const roadX = width * 0.5 - width * 0.28;
+      const roadWidth = width * 0.56;
+      const gradient = ctx.createLinearGradient(0, 0, 0, height);
+      gradient.addColorStop(0, '#18314f');
+      gradient.addColorStop(1, '#0a1d25');
+      ctx.fillStyle = '#102d2c';
+      ctx.fillRect(0, 0, width, height);
+
+      const sky = ctx.createLinearGradient(0, 0, 0, height * 0.6);
+      sky.addColorStop(0, '#1a237e');
+      sky.addColorStop(0.4, '#2b6cb0');
+      sky.addColorStop(0.7, '#ffb703');
+      sky.addColorStop(1, '#f7725b');
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, width, height * 0.7);
+
+      ctx.fillStyle = '#ffd166';
+      ctx.beginPath();
+      ctx.arc(width * 0.82, 94, 34, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#224c8c';
+      ctx.fillRect(0, height * 0.68, width, height * 0.32);
+
+      ctx.fillStyle = '#183b4d';
+      for (let i = 0; i < 20; i += 1) {
+        const x = (i * 90 + (game?.roadScroll || 0) * 0.6) % (width + 120) - 60;
+        ctx.fillRect(x, height * 0.67 + ((i % 3) * 22), 36, 28);
+      }
+
+      ctx.fillStyle = '#c3f1ff';
+      ctx.fillRect(0, height * 0.65, width, 6);
+
+      ctx.fillStyle = '#2f4858';
+      ctx.fillRect(roadX, 0, roadWidth, height);
+
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(roadX + roadWidth * 0.03, 0, roadWidth * 0.94, height);
+
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(roadX + roadWidth * 0.333, 0, 6, height);
+      ctx.fillRect(roadX + roadWidth * 0.666, 0, 6, height);
+
+      for (let y = -40; y < height + 60; y += 60) {
+        const offset = (game?.roadScroll || 0) % 60;
+        const lineY = y + offset;
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(roadX + roadWidth * 0.46, lineY, 10, 32);
+        ctx.fillRect(roadX + roadWidth * 0.54, lineY, 10, 32);
+      }
+
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(roadX - 18, 0, 18, height);
+      ctx.fillRect(roadX + roadWidth, 0, 18, height);
+    }
+
+    function drawParticles() {
+      if (!game) return;
+      for (const particle of game.particles) {
+        ctx.fillStyle = particle.color;
+        const alpha = clamp(particle.life / particle.maxLife, 0, 1);
+        ctx.globalAlpha = alpha;
+        ctx.fillRect(particle.x, particle.y, particle.size, particle.size);
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    function drawInterface() {
+      if (!game) return;
+
+      ctx.fillStyle = 'rgba(255,255,255,0.18)';
+      ctx.fillRect(18, 18, 180, 54);
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = 'bold 24px monospace';
+      ctx.fillText('SCORE', 30, 42);
+      ctx.fillStyle = '#7ee9ff';
+      ctx.font = 'bold 28px monospace';
+      ctx.fillText(Math.floor(game.score), 30, 62);
+
+      ctx.fillStyle = 'rgba(255,255,255,0.18)';
+      ctx.fillRect(canvas.width - 170, 18, 152, 54);
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = 'bold 24px monospace';
+      ctx.fillText('LVL', canvas.width - 155, 42);
+      ctx.fillStyle = '#ffd166';
+      ctx.font = 'bold 28px monospace';
+      ctx.fillText(String(game.level), canvas.width - 155, 62);
+    }
+
+    function drawGame() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawRoad();
+
+      if (!game) return;
+
+      for (const pickup of game.pickups) {
+        drawPickup(pickup);
+      }
+
+      for (const enemy of game.enemies) {
+        drawPixelCar(enemy.x, enemy.y, enemy.width, enemy.height, enemy.color, enemy.glow, '#dfe7ff');
+      }
+
+      const player = game.player;
+      drawPixelCar(player.x, player.y, player.width, player.height, '#3dd9ff', '#7ee9ff', '#f8fafc');
+      drawParticles();
+      drawInterface();
+
+      if (game.flash > 0) {
+        ctx.fillStyle = `rgba(255, 255, 255, ${game.flash})`;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    function loop(timestamp) {
+      if (!game) {
+        drawGame();
+        return;
+      }
+
+      if (!lastStamp) lastStamp = timestamp;
+      const delta = timestamp - lastStamp;
+      lastStamp = timestamp;
+
+      updateGame(delta);
+      drawGame();
+
+      if (game.running) {
+        animationId = requestAnimationFrame(loop);
+      }
+    }
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft' || event.key.toLowerCase() === 'a') {
+        movePlayer(-1);
+      }
+      if (event.key === 'ArrowRight' || event.key.toLowerCase() === 'd') {
+        movePlayer(1);
+      }
+    });
+
+    canvas.addEventListener('pointerdown', (event) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const center = canvas.width / 2;
+      if (x < center) {
+        movePlayer(-1);
+      } else {
+        movePlayer(1);
+      }
+    });
+
+    difficultyButtons.forEach((button) => {
+      button.addEventListener('click', () => setDifficulty(Number(button.dataset.difficulty)));
+    });
+
+    startButton.addEventListener('click', startRace);
+    retryButton.addEventListener('click', startRace);
+    backButton.addEventListener('click', goBackToMenu);
+
+    document.getElementById('music-toggle').addEventListener('click', () => {
+      musicOn = !musicOn;
+      document.getElementById('music-toggle').textContent = musicOn ? '♪' : '∅';
+    });
+
+    window.addEventListener('resize', () => {
+      if (game) {
+        game.player.x = canvas.width / 2;
+      }
+    });
+
+    loadBestScore();
+    drawGame();
   </script>
 </body>
 
