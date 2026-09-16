@@ -252,7 +252,7 @@ button {
   flex-direction: column;
   justify-content: center;
   padding: 0;
-  background: #a9d0ff;
+  background: #a84f2b;
 }
 
 .game-screen:fullscreen #game-canvas {
@@ -306,13 +306,32 @@ button {
   justify-self: end;
 }
 
+.horn-button {
+  position: absolute;
+  right: 8px;
+  top: 48px;
+  z-index: 3;
+  border: 2px solid #111111;
+  padding: 9px 12px;
+  background: #facc15;
+  color: #111111;
+  cursor: pointer;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+}
+
+.horn-button:hover,
+.horn-button:focus-visible {
+  background: #fde68a;
+}
+
 #game-canvas {
   display: block;
   width: 100%;
   height: min(72vh, 620px);
   min-height: 410px;
   border: 3px solid #0f172a;
-  background: #a9d0ff;
+  background: #9b4d2a;
   box-shadow: 0 10px 20px rgba(15, 23, 42, 0.12);
   image-rendering: pixelated;
   cursor: pointer;
