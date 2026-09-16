@@ -362,7 +362,7 @@
 
       ctx.save();
       ctx.translate(x + shakeX, y + shakeY);
-      ctx.rotate(Math.PI / 2);
+      ctx.rotate(-Math.PI / 2);
 
       const nose = type === 'truck' || type === 'van' ? 0.4 : 0.32;
       const cabinWidth = type === 'sport' ? 0.62 : type === 'truck' ? 0.48 : 0.56;
@@ -466,6 +466,12 @@
       const width = canvas.width;
       const height = canvas.height;
 
+      const roadLeft = 0;
+      const roadTop = Math.max(82, height * 0.2);
+      const roadWidth = width;
+      const roadHeight = height - roadTop * 2;
+      const laneCount = 4;
+
       const sky = ctx.createLinearGradient(0, 0, 0, height);
       sky.addColorStop(0, '#a9d0ff');
       sky.addColorStop(1, '#dfeeff');
@@ -477,18 +483,12 @@
       ctx.fillStyle = '#c96b38';
       ctx.fillRect(0, height * 0.42, width, height * 0.58);
 
-      drawCactus(44, height * 0.7, 1.05);
-      drawCactus(width - 50, height * 0.38, 0.7);
-      drawCactus(width - 30, height * 0.83, 0.9);
-      drawBoulder(112, height * 0.88, 1.1);
-      drawBoulder(width - 120, height * 0.65, 0.85);
-      drawBoulder(width - 25, height * 0.93, 0.7);
-
-      const roadLeft = 90;
-      const roadTop = 48;
-      const roadWidth = width - 180;
-      const roadHeight = height - 96;
-      const laneCount = 4;
+      drawCactus(44, roadTop * 0.7, 0.8);
+      drawCactus(width - 50, roadTop * 0.42, 0.62);
+      drawCactus(width - 30, height - roadTop * 0.48, 0.72);
+      drawBoulder(112, roadTop * 0.55, 0.9);
+      drawBoulder(width - 120, height - roadTop * 0.55, 0.78);
+      drawBoulder(width - 25, height - roadTop * 0.3, 0.62);
 
       ctx.fillStyle = '#111111';
       ctx.fillRect(roadLeft, roadTop, roadWidth, roadHeight);
