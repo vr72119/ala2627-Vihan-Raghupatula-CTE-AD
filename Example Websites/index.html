@@ -2,734 +2,158 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description"
-    content="Retro highway racer game with bright pixel-art visuals and smooth arcade gameplay." />
-  <title>Pixel Highway Rush</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A simple two-player game scorekeeper.">
+  <title>Game Scorekeeper</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --navy-950: #071426;
+      --navy-900: #0d2038;
+      --navy-800: #153452;
+      --blue-400: #75b8e8;
+      --blue-200: #c6e4f7;
+      --white: #f4f8fc;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      margin: 0;
+      padding: 1.5rem;
+      color: var(--white);
+      background: radial-gradient(circle at top, #17395a 0, var(--navy-950) 52%);
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    .scorekeeper {
+      width: min(100%, 45rem);
+      padding: clamp(2rem, 6vw, 4rem);
+      border: 1px solid rgba(198, 228, 247, 0.18);
+      border-radius: 1rem;
+      background: rgba(13, 32, 56, 0.9);
+      box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.28);
+      text-align: center;
+    }
+
+    .eyebrow {
+      margin: 0 0 0.75rem;
+      color: var(--blue-400);
+      font-family: "Trebuchet MS", sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0 0 2.5rem;
+      font-size: clamp(2.25rem, 7vw, 4rem);
+      font-weight: 400;
+    }
+
+    .players {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .player {
+      padding: 1.5rem 1rem;
+      border: 1px solid rgba(198, 228, 247, 0.16);
+      border-radius: 0.75rem;
+      background: rgba(7, 20, 38, 0.55);
+    }
+
+    h2 {
+      margin: 0;
+      color: var(--blue-200);
+      font-size: clamp(1.25rem, 4vw, 1.75rem);
+      font-weight: 400;
+    }
+
+    .score {
+      margin: 0.5rem 0 1.25rem;
+      font-family: "Trebuchet MS", sans-serif;
+      font-size: clamp(4rem, 12vw, 6rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 0.6rem;
+    }
+
+    button {
+      min-width: 4.25rem;
+      padding: 0.7rem 0.85rem;
+      border: 1px solid var(--blue-400);
+      border-radius: 0.4rem;
+      color: var(--white);
+      background: var(--navy-800);
+      font: 700 0.9rem "Trebuchet MS", sans-serif;
+      cursor: pointer;
+    }
+
+    button:hover,
+    button:focus-visible {
+      background: #1d4a70;
+    }
+
+    button:focus-visible {
+      outline: 3px solid var(--blue-200);
+      outline-offset: 3px;
+    }
+
+    @media (max-width: 30rem) {
+      .players {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 
 <body>
-  <main class="game-shell">
-    <header class="topbar">
-      <div class="brand">
-        <span class="brand-mark">▣</span>
-        <span>PIXEL</span>
-        <strong>HIGHWAY</strong>
-      </div>
-
-      <div class="topbar-meta">
-        <div class="score-box">
-          <span class="label">BEST</span>
-          <strong id="best-score">0</strong>
+  <main class="scorekeeper" aria-labelledby="page-title">
+    <p class="eyebrow">Match day</p>
+    <h1 id="page-title">Game Scorekeeper</h1>
+    <section class="players" aria-label="Player scores">
+      <article class="player">
+        <h2>Player One</h2>
+        <p class="score" id="score-one" aria-live="polite">0</p>
+        <div class="controls">
+          <button type="button" data-player="one" data-change="1">+1</button>
+          <button type="button" data-player="one" data-change="-1">-1</button>
         </div>
-        <button id="music-toggle" class="icon-button" aria-label="Toggle music">♪</button>
-      </div>
-    </header>
-
-    <section class="menu-screen" id="menu-screen">
-      <p class="eyebrow">DESERT ARCADE • SPEEDRUN MODE</p>
-      <h1>HIGHWAY<br /><em>RUSH</em></h1>
-      <p class="menu-copy">Dodge the traffic, keep your combo alive, and push your score into the stratosphere.</p>
-
-      <div class="difficulty-panel" aria-label="Difficulty selection">
-        <button class="difficulty-card is-selected" data-difficulty="0">
-          <span class="difficulty-name">CITRUS</span>
-          <span class="difficulty-meta">Easy / 1x</span>
-        </button>
-        <button class="difficulty-card" data-difficulty="1">
-          <span class="difficulty-name">BLAST</span>
-          <span class="difficulty-meta">Normal / 1.4x</span>
-        </button>
-        <button class="difficulty-card" data-difficulty="2">
-          <span class="difficulty-name">MAX</span>
-          <span class="difficulty-meta">Hard / 1.9x</span>
-        </button>
-      </div>
-
-      <button id="start-button" class="play-button" type="button">Start race <span>▶</span></button>
-      <p class="controls-hint">↑ / ↓ or W / S to switch lanes • H or HORN to clear traffic • HOLD SPACE to boost</p>
-    </section>
-
-    <section class="game-screen is-hidden" id="game-screen">
-      <div class="hud">
-        <button class="back-button" id="back-button" type="button">← Menu</button>
-        <div class="hud-center">
-          <span class="hud-label">COINS</span>
-          <strong id="score-value">0</strong>
+      </article>
+      <article class="player">
+        <h2>Player Two</h2>
+        <p class="score" id="score-two" aria-live="polite">0</p>
+        <div class="controls">
+          <button type="button" data-player="two" data-change="1">+1</button>
+          <button type="button" data-player="two" data-change="-1">-1</button>
         </div>
-        <div class="hud-right">
-          <span class="hud-label">LEVEL</span>
-          <strong id="level-value">1</strong>
-        </div>
-        <button class="horn-button" id="horn-button" type="button">HORN</button>
-      </div>
-
-      <canvas id="game-canvas" width="960" height="540" aria-label="Highway racer game"></canvas>
-
-      <div id="game-over" class="game-over is-hidden" aria-live="polite">
-        <p id="game-over-kicker">RACE FAILED</p>
-        <h2 id="game-over-title">Crash!</h2>
-        <p id="game-over-copy">Your run ended in the traffic lane.</p>
-        <button id="retry-button" class="play-button" type="button">Retry <span>↻</span></button>
-      </div>
+      </article>
     </section>
   </main>
-
   <script>
-    const canvas = document.getElementById('game-canvas');
-    const ctx = canvas.getContext('2d');
+    const scores = { one: 0, two: 0 };
 
-    const menuScreen = document.getElementById('menu-screen');
-    const gameScreen = document.getElementById('game-screen');
-    const startButton = document.getElementById('start-button');
-    const retryButton = document.getElementById('retry-button');
-    const backButton = document.getElementById('back-button');
-    const gameOver = document.getElementById('game-over');
-    const gameOverTitle = document.getElementById('game-over-title');
-    const gameOverCopy = document.getElementById('game-over-copy');
-    const gameOverKicker = document.getElementById('game-over-kicker');
-    const scoreValue = document.getElementById('score-value');
-    const bestScore = document.getElementById('best-score');
-    const levelValue = document.getElementById('level-value');
-    const hornButton = document.getElementById('horn-button');
-    const difficultyButtons = [...document.querySelectorAll('.difficulty-card')];
-
-    const settings = {
-      easy: { speed: 0.7, spawn: 1.15 },
-      normal: { speed: 0.9, spawn: 0.88 },
-      hard: { speed: 1.1, spawn: 0.68 }
-    };
-
-    const carTypes = [
-      { name: 'sedan', color: '#ef4444', roof: '#dbeafe', width: 76, height: 52 },
-      { name: 'truck', color: '#f97316', roof: '#fef3c7', width: 88, height: 60 },
-      { name: 'taxi', color: '#facc15', roof: '#fef3c7', width: 80, height: 54 },
-      { name: 'van', color: '#22c55e', roof: '#dcfce7', width: 90, height: 58 },
-      { name: 'sport', color: '#7c3aed', roof: '#ede9fe', width: 74, height: 50 },
-      { name: 'utility', color: '#0ea5e9', roof: '#dbeafe', width: 84, height: 56 }
-    ];
-
-    let selectedDifficulty = 0;
-    let game = null;
-    let animationId = 0;
-    let lastStamp = 0;
-    let musicOn = true;
-
-    function setDifficulty(index) {
-      selectedDifficulty = index;
-      difficultyButtons.forEach((btn, i) => btn.classList.toggle('is-selected', i === index));
-    }
-
-    function clamp(value, min, max) {
-      return Math.min(Math.max(value, min), max);
-    }
-
-    function getLaneCenters() {
-      const baseTop = 72;
-      const baseBottom = canvas.height - 72;
-      const laneHeight = (baseBottom - baseTop) / 4;
-      return [
-        baseTop + laneHeight * 0.5,
-        baseTop + laneHeight * 1.5,
-        baseTop + laneHeight * 2.5,
-        baseTop + laneHeight * 3.5
-      ];
-    }
-
-    function loadBestScore() {
-      const stored = Number(localStorage.getItem('pixel-highway-best') || 0);
-      bestScore.textContent = Math.floor(stored);
-    }
-
-    function saveBestScore(score) {
-      const previous = Number(localStorage.getItem('pixel-highway-best') || 0);
-      if (score > previous) {
-        localStorage.setItem('pixel-highway-best', String(Math.floor(score)));
-        bestScore.textContent = Math.floor(score);
-      }
-    }
-
-    function randomFrom(array) {
-      return array[Math.floor(Math.random() * array.length)];
-    }
-
-    function createParticles(x, y, color, count) {
-      if (!game) return;
-      for (let i = 0; i < count; i += 1) {
-        game.particles.push({
-          x,
-          y,
-          vx: (Math.random() - 0.5) * 5,
-          vy: (Math.random() - 0.5) * 5,
-          life: 30 + Math.random() * 18,
-          maxLife: 30 + Math.random() * 18,
-          color,
-          size: 3 + Math.random() * 3
-        });
-      }
-    }
-
-    function makePlayer() {
-      const laneCenters = getLaneCenters();
-      return {
-        lane: 1,
-        x: 160,
-        y: laneCenters[1],
-        width: 92,
-        height: 54,
-        targetY: laneCenters[1],
-        color: '#ef4444',
-        accent: '#ffffff'
-      };
-    }
-
-    function spawnEnemy() {
-      const laneCenters = getLaneCenters();
-      const lane = Math.floor(Math.random() * 4);
-      const isPolice = Math.random() < 0.12;
-      const type = isPolice ? {
-        name: 'police',
-        color: '#e5e7eb',
-        roof: '#f8fafc',
-        width: 82,
-        height: 54
-      } : randomFrom(carTypes);
-      const enemy = {
-        lane,
-        x: canvas.width + 80,
-        y: laneCenters[lane],
-        width: type.width,
-        height: type.height,
-        color: type.color,
-        roof: type.roof,
-        type: type.name,
-        isPolice,
-        changingLane: false,
-        signalTimer: 0,
-        speed: 0,
-        drift: (Math.random() - 0.5) * 2
-      };
-
-      game.enemies.push(enemy);
-    }
-
-    function spawnCoin() {
-      const laneCenters = getLaneCenters();
-      const lane = Math.floor(Math.random() * 4);
-      game.coins.push({
-        x: canvas.width + 32,
-        y: laneCenters[lane],
-        radius: 12,
-        pulse: Math.random() * Math.PI * 2
+    document.querySelectorAll('button[data-player]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const player = button.dataset.player;
+        scores[player] += Number(button.dataset.change);
+        document.querySelector(`#score-${player}`).textContent = scores[player];
       });
-    }
-
-    function initializeGame() {
-      const difficulty = settings[Object.keys(settings)[selectedDifficulty]];
-      game = {
-        running: true,
-        score: 0,
-        difficulty,
-        level: 1,
-        enemyTimer: 0,
-        coinTimer: 1400,
-        roadScroll: 0,
-        rumble: 0,
-        rumblePhase: 0,
-        hornTimer: 0,
-        boosting: false,
-        boost: 1,
-        player: makePlayer(),
-        enemies: [],
-        coins: [],
-        particles: [],
-        flash: 0
-      };
-
-      scoreValue.textContent = '0';
-      levelValue.textContent = '1';
-      gameOver.classList.add('is-hidden');
-    }
-
-    function startRace() {
-      menuScreen.classList.add('is-hidden');
-      gameScreen.classList.remove('is-hidden');
-      initializeGame();
-      lastStamp = 0;
-      gameScreen.requestFullscreen?.().catch(() => { });
-      animationId = requestAnimationFrame(loop);
-    }
-
-    function goBackToMenu() {
-      cancelAnimationFrame(animationId);
-      if (document.fullscreenElement) document.exitFullscreen?.().catch(() => { });
-      gameScreen.classList.add('is-hidden');
-      menuScreen.classList.remove('is-hidden');
-    }
-
-    function endRace(reason = 'crash') {
-      if (!game || !game.running) return;
-      game.running = false;
-      gameOver.classList.remove('is-hidden');
-      gameOverKicker.textContent = reason === 'police' ? 'PULLED OVER' : 'RACE FAILED';
-      gameOverTitle.textContent = reason === 'police' ? 'Caught!' : 'Crash!';
-      gameOverCopy.textContent = reason === 'police'
-        ? `The police caught you boosting with ${Math.floor(game.score)} coins.`
-        : `You collected ${Math.floor(game.score)} coins.`;
-      saveBestScore(game.score);
-    }
-
-    function movePlayer(direction) {
-      if (!game || !game.running) return;
-      const nextLane = clamp(game.player.lane + direction, 0, 3);
-      game.player.lane = nextLane;
-      game.player.targetY = getLaneCenters()[nextLane];
-    }
-
-    function canUseLane(enemy, lane) {
-      return lane >= 0 && lane < 4 && !game.enemies.some((other) => {
-        if (other === enemy || other.lane !== lane) return false;
-        return Math.abs(other.x - enemy.x) < 150;
-      });
-    }
-
-    function honk() {
-      if (!game || !game.running) return;
-      game.hornTimer = 420;
-      game.rumble = Math.max(game.rumble, 0.4);
-
-      const laneCenters = getLaneCenters();
-      const targets = game.enemies
-        .filter((enemy) => !enemy.isPolice && enemy.lane === game.player.lane && enemy.x > game.player.x && enemy.x < game.player.x + 420)
-        .sort((a, b) => a.x - b.x);
-
-      for (const target of targets) {
-        const options = [target.lane - 1, target.lane + 1].sort(() => Math.random() - 0.5);
-        const openLane = options.find((lane) => canUseLane(target, lane));
-        if (openLane === undefined) continue;
-
-        target.lane = openLane;
-        target.targetY = laneCenters[openLane];
-        target.changingLane = true;
-        target.signalTimer = 900;
-      }
-    }
-
-    function detectCollision(a, b) {
-      return (
-        a.x - a.width / 2 < b.x + b.width / 2 &&
-        a.x + a.width / 2 > b.x - b.width / 2 &&
-        a.y - a.height / 2 < b.y + b.height / 2 &&
-        a.y + a.height / 2 > b.y - b.height / 2
-      );
-    }
-
-    function updateGame(delta) {
-      if (!game || !game.running) return;
-
-      game.roadScroll += delta * 0.08 * game.difficulty.speed;
-      game.rumble = Math.max(0, game.rumble - delta * 0.0012);
-      game.rumblePhase += delta * 0.08;
-      game.flash = Math.max(0, game.flash - delta * 0.01);
-      game.hornTimer = Math.max(0, game.hornTimer - delta);
-      game.boost = game.boosting
-        ? Math.min(1.5, game.boost + delta * 0.00025)
-        : Math.max(1, game.boost - delta * 0.0005);
-
-      if (game.score >= game.level * 10) {
-        game.level += 1;
-        levelValue.textContent = String(game.level);
-      }
-
-      game.player.y += (game.player.targetY - game.player.y) * 0.22;
-
-      game.enemyTimer -= delta;
-      if (game.enemyTimer <= 0) {
-        const hasNearbySpawn = game.enemies.some((enemy) => enemy.x > canvas.width - 260);
-        if (!hasNearbySpawn) spawnEnemy();
-        game.enemyTimer = game.difficulty.spawn * 1000;
-      }
-
-      game.coinTimer -= delta;
-      if (game.coinTimer <= 0) {
-        spawnCoin();
-        game.coinTimer = 1800 + Math.random() * 1400;
-      }
-
-      for (let i = game.enemies.length - 1; i >= 0; i -= 1) {
-        const enemy = game.enemies[i];
-        enemy.x -= delta * (0.035 * game.difficulty.speed + 0.05) * game.boost;
-        enemy.signalTimer = Math.max(0, enemy.signalTimer - delta);
-        if (enemy.changingLane) {
-          enemy.y += (enemy.targetY - enemy.y) * Math.min(1, delta * 0.002);
-          if (Math.abs(enemy.targetY - enemy.y) < 1) enemy.changingLane = false;
-        }
-
-        if (enemy.isPolice && game.boosting && game.boost > 1.05 && enemy.x > game.player.x - 40 && enemy.x < game.player.x + 420) {
-          game.rumble = 1;
-          createParticles(game.player.x, game.player.y, '#facc15', 18);
-          endRace('police');
-          return;
-        }
-
-        if (detectCollision(game.player, enemy)) {
-          game.rumble = 1;
-          createParticles(game.player.x, game.player.y, '#ef4444', 24);
-          endRace();
-          return;
-        }
-
-        if (enemy.x + enemy.width < -40) {
-          game.enemies.splice(i, 1);
-        }
-      }
-
-      for (let i = game.coins.length - 1; i >= 0; i -= 1) {
-        const coin = game.coins[i];
-        coin.x -= delta * (0.035 * game.difficulty.speed + 0.05) * game.boost;
-        coin.pulse += 0.12;
-
-        const distance = Math.hypot(game.player.x - coin.x, game.player.y - coin.y);
-        if (distance < 55) {
-          game.score += 1;
-          createParticles(coin.x, coin.y, '#facc15', 12);
-          game.coins.splice(i, 1);
-          scoreValue.textContent = Math.floor(game.score);
-          continue;
-        }
-
-        if (coin.x + coin.radius < -20) {
-          game.coins.splice(i, 1);
-        }
-      }
-
-      for (let i = game.particles.length - 1; i >= 0; i -= 1) {
-        const particle = game.particles[i];
-        particle.x += particle.vx * (delta * 0.06);
-        particle.y += particle.vy * (delta * 0.06);
-        particle.life -= delta * 0.06;
-        if (particle.life <= 0) {
-          game.particles.splice(i, 1);
-        }
-      }
-
-      scoreValue.textContent = Math.floor(game.score);
-    }
-
-    function drawCar(x, y, width, height, color, roofColor = '#dbeafe', isPlayer = false, type = 'sedan', signalTimer = 0) {
-      const shakeX = Math.sin(game.rumblePhase * 18 + x * 0.3) * (game.rumble ? 2.8 : 0.7);
-      const shakeY = Math.cos(game.rumblePhase * 22 + y * 0.4) * (game.rumble ? 2.1 : 0.4);
-
-      ctx.save();
-      ctx.translate(x + shakeX, y + shakeY);
-      ctx.rotate(0);
-
-      const nose = type === 'truck' || type === 'van' ? 0.4 : 0.32;
-      const cabinWidth = type === 'sport' ? 0.62 : type === 'truck' ? 0.48 : 0.56;
-      const cabinHeight = type === 'truck' ? 0.38 : type === 'van' ? 0.46 : 0.32;
-
-      ctx.fillStyle = '#050505';
-      ctx.fillRect(-width / 2 - 3, -height / 2 + 8, 8, height - 16);
-      ctx.fillRect(width / 2 - 5, -height / 2 + 8, 8, height - 16);
-      ctx.fillStyle = color;
-      ctx.beginPath();
-      ctx.moveTo(-width / 2 + width * nose, -height / 2);
-      ctx.lineTo(width / 2 - width * 0.12, -height / 2);
-      ctx.lineTo(width / 2, -height * 0.28);
-      ctx.lineTo(width / 2, height * 0.34);
-      ctx.lineTo(width / 2 - width * 0.14, height / 2);
-      ctx.lineTo(-width / 2 + width * nose, height / 2);
-      ctx.lineTo(-width / 2, height * 0.28);
-      ctx.lineTo(-width / 2, -height * 0.28);
-      ctx.closePath();
-      ctx.fill();
-
-      ctx.fillStyle = roofColor;
-      ctx.fillRect(-width * cabinWidth / 2, -height * cabinHeight / 2, width * cabinWidth, height * cabinHeight);
-
-      ctx.fillStyle = '#172033';
-      ctx.fillRect(-width * cabinWidth / 2 + 5, -height * cabinHeight / 2 + 4, width * cabinWidth - 10, height * cabinHeight - 8);
-
-      if (type === 'truck') {
-        ctx.fillStyle = '#fef3c7';
-        ctx.fillRect(width * 0.16, -height * 0.34, width * 0.2, height * 0.68);
-      }
-
-      if (type === 'police') {
-        ctx.fillStyle = '#2563eb';
-        ctx.fillRect(-8, -height * 0.38, 8, 7);
-        ctx.fillStyle = '#dc2626';
-        ctx.fillRect(1, -height * 0.38, 8, 7);
-      }
-
-      ctx.fillStyle = '#dbeafe';
-      ctx.fillRect(-width / 2 + 12, -height / 2 + 10, width * 0.25, 8);
-      ctx.fillRect(-width / 2 + 12, height / 2 - 18, width * 0.25, 8);
-
-      ctx.fillStyle = '#f8fafc';
-      ctx.fillRect(width / 2 - 10, -height / 2 + 10, 8, 9);
-      ctx.fillRect(width / 2 - 10, height / 2 - 19, 8, 9);
-
-      if (!isPlayer) {
-        ctx.fillStyle = '#ef4444';
-        ctx.fillRect(-width / 2 + 5, -height / 2 + 10, 5, 10);
-        ctx.fillRect(-width / 2 + 5, height / 2 - 20, 5, 10);
-      } else {
-        ctx.fillStyle = '#fbbf24';
-        ctx.fillRect(width / 2 - 4, -height / 2 + 10, 5, 10);
-        ctx.fillRect(width / 2 - 4, height / 2 - 20, 5, 10);
-      }
-
-      if (!isPlayer && signalTimer > 0 && Math.floor(signalTimer / 120) % 2 === 0) {
-        ctx.fillStyle = '#f97316';
-        ctx.fillRect(width / 2 - 2, -height / 2 + 5, 7, 7);
-        ctx.fillRect(width / 2 - 2, height / 2 - 12, 7, 7);
-      }
-
-      ctx.restore();
-    }
-
-    function drawCoin(coin) {
-      const bob = Math.sin(coin.pulse) * 4;
-      ctx.save();
-      ctx.translate(coin.x, coin.y + bob);
-      ctx.fillStyle = '#facc15';
-      ctx.beginPath();
-      ctx.arc(0, 0, coin.radius, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#fef3c7';
-      ctx.fillRect(-4, -8, 8, 16);
-      ctx.restore();
-    }
-
-    function drawCactus(x, y, scale) {
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.scale(scale, scale);
-      ctx.fillStyle = '#3f6212';
-      ctx.fillRect(-7, -54, 14, 54);
-      ctx.fillRect(-24, -38, 17, 9);
-      ctx.fillRect(-24, -54, 9, 16);
-      ctx.fillRect(7, -27, 17, 9);
-      ctx.fillRect(15, -43, 9, 16);
-      ctx.fillStyle = '#6b4f2a';
-      ctx.fillRect(-25, 0, 50, 5);
-      ctx.restore();
-    }
-
-    function drawBoulder(x, y, scale) {
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.scale(scale, scale);
-      ctx.fillStyle = '#6b4226';
-      ctx.beginPath();
-      ctx.moveTo(-24, 0);
-      ctx.lineTo(-18, -18);
-      ctx.lineTo(-4, -28);
-      ctx.lineTo(18, -22);
-      ctx.lineTo(28, 0);
-      ctx.closePath();
-      ctx.fill();
-      ctx.fillStyle = '#895b37';
-      ctx.fillRect(-9, -18, 12, 7);
-      ctx.restore();
-    }
-
-    function drawRoad() {
-      const width = canvas.width;
-      const height = canvas.height;
-
-      const roadLeft = 0;
-      const roadTop = Math.max(82, height * 0.2);
-      const roadWidth = width;
-      const roadHeight = height - roadTop * 2;
-      const laneCount = 4;
-
-      ctx.fillStyle = '#9b4d2a';
-      ctx.fillRect(0, 0, width, height);
-
-      ctx.fillStyle = '#a84f2b';
-      ctx.fillRect(0, 0, width, height);
-      ctx.fillStyle = '#c96b38';
-      ctx.fillRect(0, 0, width, roadTop);
-      ctx.fillRect(0, roadTop + roadHeight, width, height - roadTop - roadHeight);
-
-      drawCactus(44, roadTop * 0.7, 0.8);
-      drawCactus(width - 50, roadTop * 0.42, 0.62);
-      drawCactus(width - 30, height - roadTop * 0.48, 0.72);
-      drawBoulder(112, roadTop * 0.55, 0.9);
-      drawBoulder(width - 120, height - roadTop * 0.55, 0.78);
-      drawBoulder(width - 25, height - roadTop * 0.3, 0.62);
-
-      ctx.fillStyle = '#111111';
-      ctx.fillRect(roadLeft, roadTop, roadWidth, roadHeight);
-
-      ctx.fillStyle = '#ff4d4d';
-      ctx.fillRect(roadLeft, roadTop, roadWidth, 6);
-      ctx.fillRect(roadLeft, roadTop + roadHeight - 6, roadWidth, 6);
-
-      const laneHeight = roadHeight / laneCount;
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 4;
-      ctx.setLineDash([18, 18]);
-      for (let i = 1; i < laneCount; i += 1) {
-        const laneY = roadTop + laneHeight * i;
-        ctx.beginPath();
-        ctx.moveTo(roadLeft, laneY);
-        ctx.lineTo(roadLeft + roadWidth, laneY);
-        ctx.stroke();
-      }
-      ctx.setLineDash([]);
-
-      ctx.fillStyle = '#f8fafc';
-      for (let i = 0; i < laneCount; i += 1) {
-        const x = roadLeft + (roadWidth / laneCount) * i + (roadWidth / laneCount / 2) - 4;
-        ctx.fillRect(x, roadTop + 18, 8, 22);
-        ctx.fillRect(x, roadTop + roadHeight - 42, 8, 22);
-      }
-    }
-
-    function drawParticles() {
-      if (!game) return;
-      for (const particle of game.particles) {
-        const alpha = clamp(particle.life / particle.maxLife, 0, 1);
-        ctx.globalAlpha = alpha;
-        ctx.fillStyle = particle.color;
-        ctx.fillRect(particle.x, particle.y, particle.size, particle.size);
-      }
-      ctx.globalAlpha = 1;
-    }
-
-    function drawInterface() {
-      if (!game) return;
-
-      ctx.fillStyle = 'rgba(17, 17, 17, 0.8)';
-      ctx.fillRect(18, 18, 180, 54);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 18px monospace';
-      ctx.fillText('SCORE', 32, 42);
-      ctx.fillStyle = '#ef4444';
-      ctx.font = 'bold 26px monospace';
-      ctx.fillText(Math.floor(game.score), 32, 64);
-
-      ctx.fillStyle = 'rgba(17, 17, 17, 0.8)';
-      ctx.fillRect(canvas.width - 170, 18, 152, 54);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 18px monospace';
-      ctx.fillText('LVL', canvas.width - 156, 42);
-      ctx.fillStyle = '#fbbf24';
-      ctx.font = 'bold 26px monospace';
-      ctx.fillText(String(game.level), canvas.width - 156, 64);
-
-      if (game.hornTimer > 0) {
-        ctx.fillStyle = '#facc15';
-        ctx.font = 'bold 16px monospace';
-        ctx.fillText('HONK!', canvas.width / 2 - 28, 34);
-      }
-
-      ctx.fillStyle = 'rgba(17, 17, 17, 0.8)';
-      ctx.fillRect(canvas.width / 2 - 58, 48, 116, 24);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 12px monospace';
-      ctx.fillText(`SPEED ${game.boost.toFixed(1)}X`, canvas.width / 2 - 48, 65);
-    }
-
-    function drawGame() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawRoad();
-
-      if (!game) return;
-
-      for (const coin of game.coins) {
-        drawCoin(coin);
-      }
-
-      for (const enemy of game.enemies) {
-        drawCar(enemy.x, enemy.y, enemy.width, enemy.height, enemy.color, enemy.roof, false, enemy.type, enemy.signalTimer);
-      }
-
-      drawCar(game.player.x, game.player.y, game.player.width, game.player.height, game.player.color, '#dbeafe', true);
-      drawParticles();
-      drawInterface();
-
-      if (game.flash > 0) {
-        ctx.fillStyle = `rgba(255,255,255,${game.flash})`;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-      }
-    }
-
-    function loop(timestamp) {
-      if (!game) {
-        drawGame();
-        return;
-      }
-
-      if (!lastStamp) lastStamp = timestamp;
-      const delta = timestamp - lastStamp;
-      lastStamp = timestamp;
-
-      updateGame(delta);
-      drawGame();
-
-      if (game.running) {
-        animationId = requestAnimationFrame(loop);
-      }
-    }
-
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'ArrowUp' || event.key.toLowerCase() === 'w') {
-        movePlayer(-1);
-      }
-      if (event.key === 'ArrowDown' || event.key.toLowerCase() === 's') {
-        movePlayer(1);
-      }
-      if (event.key.toLowerCase() === 'h') {
-        honk();
-      }
-      if (event.code === 'Space') {
-        event.preventDefault();
-        if (game?.running) game.boosting = true;
-      }
     });
-
-    document.addEventListener('keyup', (event) => {
-      if (event.code === 'Space' && game) game.boosting = false;
-    });
-
-    canvas.addEventListener('pointerdown', (event) => {
-      const rect = canvas.getBoundingClientRect();
-      const y = event.clientY - rect.top;
-      const laneCenters = getLaneCenters();
-      let targetLane = 0;
-      let bestDiff = Infinity;
-      for (let i = 0; i < laneCenters.length; i += 1) {
-        const diff = Math.abs(y - laneCenters[i]);
-        if (diff < bestDiff) {
-          bestDiff = diff;
-          targetLane = i;
-        }
-      }
-      movePlayer(targetLane - game.player.lane);
-    });
-
-    difficultyButtons.forEach((button) => {
-      button.addEventListener('click', () => setDifficulty(Number(button.dataset.difficulty)));
-    });
-
-    startButton.addEventListener('click', startRace);
-    retryButton.addEventListener('click', startRace);
-    backButton.addEventListener('click', goBackToMenu);
-    hornButton.addEventListener('click', honk);
-
-    document.getElementById('music-toggle').addEventListener('click', () => {
-      musicOn = !musicOn;
-      document.getElementById('music-toggle').textContent = musicOn ? '♪' : '∅';
-    });
-
-    loadBestScore();
-    drawGame();
   </script>
 </body>
 
