@@ -4,6 +4,419 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Upload a photo and flash it on screen a chosen number of times.">
+  <title>Flash Frame</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;700&display=swap');
+
+    :root {
+      color-scheme: dark;
+      --ink: #f4f1e8;
+      --muted: #a5a69f;
+      --paper: #161817;
+      --line: #39403d;
+      --lime: #d8ff58;
+      --orange: #ff754d;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 24px;
+      color: var(--ink);
+      background: #0d0f0e;
+      font-family: "Space Grotesk", sans-serif;
+    }
+
+    .app {
+      width: min(100%, 1060px);
+      min-height: calc(100vh - 48px);
+      margin: auto;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      border: 1px solid var(--line);
+      background: var(--paper);
+    }
+
+    .topbar,
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .footer {
+      border-top: 1px solid var(--line);
+      border-bottom: 0;
+      color: var(--muted);
+      font: 0.7rem "DM Mono", monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .brand,
+    .status {
+      font: 500 0.75rem "DM Mono", monospace;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .brand::before {
+      content: "";
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      margin-right: 10px;
+      background: var(--orange);
+      box-shadow: 0 0 14px var(--orange);
+    }
+
+    .status {
+      color: var(--muted);
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+      gap: clamp(28px, 6vw, 76px);
+      align-items: center;
+      padding: clamp(36px, 7vw, 84px);
+    }
+
+    .intro {
+      max-width: 620px;
+    }
+
+    .kicker {
+      margin: 0 0 18px;
+      color: var(--lime);
+      font: 500 0.72rem "DM Mono", monospace;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 680px;
+      margin: 0;
+      color: var(--ink);
+      font-size: clamp(3.5rem, 9vw, 7.8rem);
+      letter-spacing: -0.075em;
+      line-height: 0.84;
+    }
+
+    .description {
+      max-width: 480px;
+      margin: 28px 0 0;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .controls {
+      padding: 24px;
+      border: 1px solid var(--line);
+      background: #1d211f;
+    }
+
+    .upload-label {
+      display: block;
+      padding: 28px 18px;
+      border: 1px dashed #667068;
+      color: var(--lime);
+      font: 500 0.75rem "DM Mono", monospace;
+      letter-spacing: 0.08em;
+      text-align: center;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .upload-label:hover,
+    .upload-label:focus-within {
+      border-color: var(--lime);
+      background: #252b27;
+    }
+
+    input[type="file"] {
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      position: absolute;
+    }
+
+    .file-name {
+      min-height: 1.4em;
+      margin: 14px 0 28px;
+      overflow: hidden;
+      color: var(--muted);
+      font: 0.7rem "DM Mono", monospace;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .slider-heading {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .slider-heading label,
+    .count {
+      font: 0.75rem "DM Mono", monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .count {
+      color: var(--lime);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--lime);
+      cursor: pointer;
+    }
+
+    .range-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 7px;
+      color: var(--muted);
+      font: 0.65rem "DM Mono", monospace;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 28px;
+      padding: 16px;
+      border: 0;
+      color: #11140f;
+      background: var(--lime);
+      font: 700 0.78rem "DM Mono", monospace;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    button:hover:not(:disabled),
+    button:focus-visible:not(:disabled) {
+      background: #efffa8;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.4;
+    }
+
+    button:focus-visible,
+    input:focus-visible+span {
+      outline: 2px solid var(--orange);
+      outline-offset: 4px;
+    }
+
+    .screen {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 5;
+      place-items: center;
+      background: #000;
+    }
+
+    .screen.is-active {
+      display: grid;
+    }
+
+    .screen img {
+      display: block;
+      width: min(92vw, 1100px);
+      height: min(82vh, 760px);
+      object-fit: contain;
+      opacity: 0;
+    }
+
+    .screen img.is-visible {
+      opacity: 1;
+    }
+
+    .screen-info {
+      position: fixed;
+      right: 22px;
+      bottom: 18px;
+      color: #777;
+      font: 0.7rem "DM Mono", monospace;
+    }
+
+    .stop-button {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: auto;
+      margin: 0;
+      padding: 10px 14px;
+      color: var(--ink);
+      background: #242424;
+      border: 1px solid #555;
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: 0;
+      }
+
+      .app {
+        min-height: 100vh;
+        border-right: 0;
+        border-left: 0;
+      }
+
+      .workspace {
+        grid-template-columns: 1fr;
+        padding: 48px 24px;
+      }
+
+      h1 {
+        font-size: clamp(3.8rem, 19vw, 6rem);
+      }
+
+      .topbar,
+      .footer {
+        padding: 16px 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">Flash Frame</div>
+      <div class="status" id="status" aria-live="polite">Ready</div>
+    </header>
+
+    <section class="workspace" aria-labelledby="page-title">
+      <div class="intro">
+        <p class="kicker">Image repetition tool / 001</p>
+        <h1 id="page-title">Make it<br>flash.</h1>
+        <p class="description">Choose a photo, set the number of flashes, and put it on screen. The flash is quick,
+          controlled, and easy to stop.</p>
+      </div>
+
+      <form class="controls" id="flash-form">
+        <label class="upload-label" for="photo-input">
+          <input id="photo-input" type="file" accept="image/*">
+          <span>+ Select a photo</span>
+        </label>
+        <p class="file-name" id="file-name">No photo selected</p>
+
+        <div class="slider-heading">
+          <label for="flash-count">Number of flashes</label>
+          <span class="count" id="count-value">5 flashes</span>
+        </div>
+        <input id="flash-count" type="range" min="1" max="30" value="5">
+        <div class="range-labels"><span>1</span><span>30</span></div>
+        <button id="start-button" type="submit" disabled>Start flashing</button>
+      </form>
+    </section>
+
+    <footer class="footer">
+      <span>Photo stays in your browser</span>
+      <span id="footer-count">0 / 5</span>
+    </footer>
+  </main>
+
+  <div class="screen" id="screen" aria-hidden="true">
+    <img id="preview" alt="Uploaded photo being flashed">
+    <button class="stop-button" id="stop-button" type="button">Stop</button>
+    <div class="screen-info" id="screen-info">Flash 0 / 0</div>
+  </div>
+
+  <script>
+    const photoInput = document.querySelector('#photo-input');
+    const fileName = document.querySelector('#file-name');
+    const flashCount = document.querySelector('#flash-count');
+    const countValue = document.querySelector('#count-value');
+    const footerCount = document.querySelector('#footer-count');
+    const startButton = document.querySelector('#start-button');
+    const form = document.querySelector('#flash-form');
+    const screen = document.querySelector('#screen');
+    const preview = document.querySelector('#preview');
+    const stopButton = document.querySelector('#stop-button');
+    const screenInfo = document.querySelector('#screen-info');
+    const status = document.querySelector('#status');
+    let imageUrl = '';
+    let flashTimer;
+
+    function updateCount() {
+      const count = Number(flashCount.value);
+      countValue.textContent = `${count} flash${count === 1 ? '' : 'es'}`;
+      footerCount.textContent = `0 / ${count}`;
+    }
+
+    flashCount.addEventListener('input', updateCount);
+
+    photoInput.addEventListener('change', () => {
+      const file = photoInput.files[0];
+      if (!file) return;
+      if (imageUrl) URL.revokeObjectURL(imageUrl);
+      imageUrl = URL.createObjectURL(file);
+      fileName.textContent = file.name;
+      startButton.disabled = false;
+      status.textContent = 'Photo loaded';
+    });
+
+    function stopFlashing(message = 'Ready') {
+      clearTimeout(flashTimer);
+      screen.classList.remove('is-active');
+      screen.setAttribute('aria-hidden', 'true');
+      preview.classList.remove('is-visible');
+      status.textContent = message;
+    }
+
+    function flashPhoto(total, current = 0) {
+      if (current >= total) {
+        stopFlashing('Complete');
+        return;
+      }
+      const nextFlash = current + 1;
+      preview.classList.add('is-visible');
+      screenInfo.textContent = `Flash ${nextFlash} / ${total}`;
+      footerCount.textContent = `${nextFlash} / ${total}`;
+      flashTimer = setTimeout(() => {
+        preview.classList.remove('is-visible');
+        flashTimer = setTimeout(() => flashPhoto(total, nextFlash), 180);
+      }, 520);
+    }
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (!imageUrl) return;
+      const total = Number(flashCount.value);
+      preview.src = imageUrl;
+      screen.classList.add('is-active');
+      screen.setAttribute('aria-hidden', 'false');
+      status.textContent = 'Flashing';
+      flashPhoto(total);
+    });
+
+    stopButton.addEventListener('click', () => stopFlashing('Stopped'));
+    updateCount();
+  </script>
+</body>
+
+</html>
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="A simple two-player game scorekeeper.">
   <title>Game Scorekeeper</title>
   <style>
@@ -54,8 +467,31 @@
 
     h1 {
       margin: 0 0 2.5rem;
-      font-size: clamp(2.25rem, 7vw, 4rem);
-      font-weight: 400;
+      color: var(--blue-200);
+      font-family: "Trebuchet MS", sans-serif;
+      font-size: clamp(3rem, 10vw, 5.75rem);
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      line-height: 0.95;
+      text-shadow: 0 0 1.5rem rgba(117, 184, 232, 0.45);
+      background: linear-gradient(120deg, var(--blue-400), var(--white), var(--blue-200));
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: title-shine 5s ease-in-out infinite;
+    }
+
+    @keyframes title-shine {
+
+      0%,
+      100% {
+        background-position: 0% center;
+      }
+
+      50% {
+        background-position: 100% center;
+      }
     }
 
     .players {
