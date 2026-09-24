@@ -376,8 +376,9 @@
       inset: 0;
       z-index: 5;
       place-items: center;
-      background: rgba(5, 9, 10, 0.93);
-      backdrop-filter: blur(18px);
+      overflow: hidden;
+      background: #000;
+      isolation: isolate;
     }
 
     .screen.is-active {
@@ -396,19 +397,48 @@
     }
 
     .screen img {
-      width: min(90vw, 1100px);
-      height: min(78vh, 760px);
-      object-fit: contain;
+      position: relative;
+      z-index: 1;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      transform: scale(1.08);
+      filter: brightness(1.24) contrast(1.1) saturate(1.08);
       opacity: 0;
-      transition: opacity 110ms ease;
+      transition: opacity 70ms linear;
     }
 
     .screen img.is-visible {
       opacity: 1;
     }
 
+    .screen::after {
+      position: absolute;
+      z-index: 2;
+      inset: 0;
+      content: "";
+      background: #fff;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .screen.flash-burst::after {
+      animation: exposure-burst 120ms ease-out;
+    }
+
+    @keyframes exposure-burst {
+      0% {
+        opacity: 0.98;
+      }
+
+      100% {
+        opacity: 0;
+      }
+    }
+
     .screen-info {
       position: fixed;
+      z-index: 3;
       right: 28px;
       bottom: 24px;
       color: var(--muted);
@@ -417,6 +447,7 @@
 
     .stop-button {
       position: fixed;
+      z-index: 3;
       top: 24px;
       right: 28px;
       padding: 11px 15px;
@@ -464,8 +495,6 @@
         margin-top: 26px;
       }
     }
-
-
   </style>
 
 </head>
@@ -477,7 +506,7 @@
     <header class="topbar">
       <div class="brand"><span class="brand-mark" aria-hidden="true"></span>Flash Frame</div>
       <div class="status" id="status" aria-live="polite">Ready to create</div>
-      </header>
+    </header>
 
     <section class="workspace" aria-labelledby="page-title">
       <div class="intro">
@@ -489,140 +518,144 @@
           <span class="step-dot is-active" id="step-one"></span>
           <span class="step-dot" id="step-two"></span>
           <span class="step-dot" id="step-three"></span>
-          </div>
         </div>
+      </div>
 
       <form class="controls" id="flash-form">
         <label class="control-label" for="photo-input">01 / Choose a photo</label>
         <label class="upload-label" id="upload-label" for="photo-input">
           <input id="photo-input" type="file" accept="image/*">
           <span id="upload-copy">Tap to browse photos</span>
-          </label>
+        </label>
         <p class="file-name" id="file-name">JPG, PNG, or WebP</p>
 
         <div class="slider-heading">
           <label for="flash-count">02 / Set the flashes</label>
           <span class="count" id="count-value">5 flashes</span>
-          </div>
+        </div>
         <input id="flash-count" type="range" min="1" max="30" value="5">
         <div class="range-labels"><span>1</span><span>30</span></div>
         <button class="primary-button" id="start-button" type="submit" disabled>03 / Start sequence</button>
-        </form>
-      </section>
+      </form>
+    </section>
 
     <footer class="footer">
       <span>Private by design</span>
       <span id="footer-count">0 / 5 flashes</span>
-      </footer>
-    </main>
+    </footer>
+  </main>
 
   <div class="screen" id="screen" aria-hidden="true">
     <img id="preview" alt="Uploaded photo being flashed">
     <button class="stop-button" id="stop-button" type="button">Stop sequence</button>
     <div class="screen-info" id="screen-info">Flash 0 / 0</div>
-    </div>
+  </div>
 
 
   <script>
-       const photoInput = document.querySelector('#photo-input');
-       const uploadLabel = document.querySelector('#upload-label');
-       const uploadCopy = document.querySelector('#upload-copy');
-       const fileName = document.querySelector('#file-name');
-       const flashCount = document.querySelector('#flash-count');
-       const countValue = document.querySelector('#count-value');
-       const footerCount = document.querySelector('#footer-count');
-       const startButton = document.querySelector('#start-button');
-       const form = document.querySelector('#flash-form');
-       const screen = document.querySelector('#screen');
-       const preview = document.querySelector('#preview');
-       const stopButton = document.querySelector('#stop-button');
-       const screenInfo = document.querySelector('#screen-info');
-       const status = document.querySelector('#status');
-       const steps = [document.querySelector('#step-one'), document.querySelector('#step-two'), document.querySelector('#step-three')];
-       let imageUrl = '';
-       let flashTimer;
+    const photoInput = document.querySelector('#photo-input');
+    const uploadLabel = document.querySelector('#upload-label');
+    const uploadCopy = document.querySelector('#upload-copy');
+    const fileName = document.querySelector('#file-name');
+    const flashCount = document.querySelector('#flash-count');
+    const countValue = document.querySelector('#count-value');
+    const footerCount = document.querySelector('#footer-count');
+    const startButton = document.querySelector('#start-button');
+    const form = document.querySelector('#flash-form');
+    const screen = document.querySelector('#screen');
+    const preview = document.querySelector('#preview');
+    const stopButton = document.querySelector('#stop-button');
+    const screenInfo = document.querySelector('#screen-info');
+    const status = document.querySelector('#status');
+    const steps = [document.querySelector('#step-one'), document.querySelector('#step-two'), document.querySelector('#step-three')];
+    let imageUrl = '';
+    let flashTimer;
 
-         function updateCount() {
-             const count = Number(flashCount.value);
-             countValue.textContent = `${count} flash${count === 1 ? '' : 'es'}`;
-             footerCount.textContent = `0 / ${count} flashes`;
-           }
+    function updateCount() {
+      const count = Number(flashCount.value);
+      countValue.textContent = `${count} flash${count === 1 ? '' : 'es'}`;
+      footerCount.textContent = `0 / ${count} flashes`;
+    }
 
-         function setStep(step) {
-             steps.forEach((dot, index) => dot.classList.toggle('is-active', index < step));
-           }
+    function setStep(step) {
+      steps.forEach((dot, index) => dot.classList.toggle('is-active', index < step));
+    }
 
-         flashCount.addEventListener('input', () => {
-             updateCount();
-             setStep(imageUrl ? 2 : 1);
-           });
+    flashCount.addEventListener('input', () => {
+      updateCount();
+      setStep(imageUrl ? 2 : 1);
+    });
 
-         photoInput.addEventListener('change', () => {
-             const file = photoInput.files[0];
-             if (!file) return;
-             if (imageUrl) URL.revokeObjectURL(imageUrl);
-             imageUrl = URL.createObjectURL(file);
-             uploadLabel.style.backgroundImage = `url("${imageUrl}")`;
-             uploadLabel.classList.add('has-image');
-             uploadCopy.textContent = 'Change photo';
-             fileName.textContent = file.name;
-             startButton.disabled = false;
-             status.textContent = 'Photo ready';
-             setStep(2);
-           });
+    photoInput.addEventListener('change', () => {
+      const file = photoInput.files[0];
+      if (!file) return;
+      if (imageUrl) URL.revokeObjectURL(imageUrl);
+      imageUrl = URL.createObjectURL(file);
+      uploadLabel.style.backgroundImage = `url("${imageUrl}")`;
+      uploadLabel.classList.add('has-image');
+      uploadCopy.textContent = 'Change photo';
+      fileName.textContent = file.name;
+      startButton.disabled = false;
+      status.textContent = 'Photo ready';
+      setStep(2);
+    });
 
-         function stopFlashing(message = 'Ready to create') {
-             clearTimeout(flashTimer);
-             screen.classList.remove('is-active');
-             screen.setAttribute('aria-hidden', 'true');
-             preview.classList.remove('is-visible');
-             status.textContent = message;
-             setStep(imageUrl ? 2 : 1);
-           }
+    function stopFlashing(message = 'Ready to create') {
+      clearTimeout(flashTimer);
+      screen.classList.remove('is-active');
+      screen.classList.remove('flash-burst');
+      screen.setAttribute('aria-hidden', 'true');
+      preview.classList.remove('is-visible');
+      status.textContent = message;
+      setStep(imageUrl ? 2 : 1);
+    }
 
-         function flashPhoto(total, current = 0) {
-             if (current >= total) {
-                 stopFlashing('Sequence complete');
-                 return;
-               }
-             const nextFlash = current + 1;
-             preview.classList.add('is-visible');
-             screenInfo.textContent = `Flash ${nextFlash} / ${total}`;
-             footerCount.textContent = `${nextFlash} / ${total} flashes`;
-             flashTimer = setTimeout(() => {
-                 preview.classList.remove('is-visible');
-                 flashTimer = setTimeout(() => flashPhoto(total, nextFlash), 180);
-               }, 520);
-           }
+    function flashPhoto(total, current = 0) {
+      if (current >= total) {
+        stopFlashing('Sequence complete');
+        return;
+      }
+      const nextFlash = current + 1;
+      preview.classList.add('is-visible');
+      screen.classList.remove('flash-burst');
+      void screen.offsetWidth;
+      screen.classList.add('flash-burst');
+      screenInfo.textContent = `Flash ${nextFlash} / ${total}`;
+      footerCount.textContent = `${nextFlash} / ${total} flashes`;
+      flashTimer = setTimeout(() => {
+        preview.classList.remove('is-visible');
+        flashTimer = setTimeout(() => flashPhoto(total, nextFlash), 143);
+      }, 190);
+    }
 
-         form.addEventListener('submit', (event) => {
-             event.preventDefault();
-             if (!imageUrl) return;
-             const total = Number(flashCount.value);
-             preview.src = imageUrl;
-             screen.classList.add('is-active');
-             screen.setAttribute('aria-hidden', 'false');
-             status.textContent = 'Sequence running';
-             setStep(3);
-             flashPhoto(total);
-           });
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (!imageUrl) return;
+      const total = Number(flashCount.value);
+      preview.src = imageUrl;
+      screen.classList.add('is-active');
+      screen.setAttribute('aria-hidden', 'false');
+      status.textContent = 'Sequence running';
+      setStep(3);
+      flashPhoto(total);
+    });
 
-         stopButton.addEventListener('click', () => stopFlashing('Sequence stopped'));
+    stopButton.addEventListener('click', () => stopFlashing('Sequence stopped'));
 
-         document.querySelectorAll('button').forEach((button) => {
-             button.addEventListener('click', (event) => {
-                 const ripple = document.createElement('span');
-                 ripple.className = 'ripple';
-                 const rect = button.getBoundingClientRect();
-                 ripple.style.left = `${event.clientX - rect.left - 5}px`;
-                 ripple.style.top = `${event.clientY - rect.top - 5}px`;
-                 button.append(ripple);
-                 ripple.addEventListener('animationend', () => ripple.remove());
-               });
-           });
+    document.querySelectorAll('button').forEach((button) => {
+      button.addEventListener('click', (event) => {
+        const ripple = document.createElement('span');
+        ripple.className = 'ripple';
+        const rect = button.getBoundingClientRect();
+        ripple.style.left = `${event.clientX - rect.left - 5}px`;
+        ripple.style.top = `${event.clientY - rect.top - 5}px`;
+        button.append(ripple);
+        ripple.addEventListener('animationend', () => ripple.remove());
+      });
+    });
 
-         updateCount();
-     </script>
+    updateCount();
+  </script>
 
 </body>
 
