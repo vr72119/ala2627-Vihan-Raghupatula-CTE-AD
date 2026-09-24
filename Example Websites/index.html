@@ -5,18 +5,20 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Upload a photo and flash it on screen a chosen number of times.">
-  <title>Flash Frame</title>
+  <title>Flash Frame | Photo Flasher</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;600;700;800&display=swap');
 
     :root {
       color-scheme: dark;
-      --ink: #f4f1e8;
-      --muted: #a5a69f;
-      --paper: #161817;
-      --line: #39403d;
-      --lime: #d8ff58;
-      --orange: #ff754d;
+      --text: #f4f7f3;
+      --muted: #a6b1ad;
+      --glass: rgba(31, 48, 47, 0.57);
+      --border: rgba(221, 255, 239, 0.2);
+      --mint: #baffdc;
+      --aqua: #8fe8dc;
+      --coral: #ff9d7a;
+      --shadow: rgba(5, 17, 20, 0.42);
     }
 
     * {
@@ -26,20 +28,74 @@
     body {
       min-height: 100vh;
       margin: 0;
-      padding: 24px;
-      color: var(--ink);
-      background: #0d0f0e;
-      font-family: "Space Grotesk", sans-serif;
+      padding: 28px;
+      overflow-x: hidden;
+      color: var(--text);
+      background: #101d20;
+      font-family: Manrope, sans-serif;
+    }
+
+    body::before,
+    body::after {
+      position: fixed;
+      z-index: -1;
+      content: "";
+      width: 42vw;
+      height: 42vw;
+      border-radius: 50%;
+      filter: blur(12px);
+      opacity: 0.72;
+      pointer-events: none;
+    }
+
+    body::before {
+      top: -15vw;
+      left: -10vw;
+      background: #347d82;
+      animation: drift 14s ease-in-out infinite alternate;
+    }
+
+    body::after {
+      right: -12vw;
+      bottom: -18vw;
+      background: #795d54;
+      animation: drift 17s ease-in-out -4s infinite alternate-reverse;
+    }
+
+    @keyframes drift {
+      to {
+        transform: translate(7vw, 5vw) scale(1.12);
+      }
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    label:focus-within {
+      outline: 2px solid var(--mint);
+      outline-offset: 4px;
     }
 
     .app {
-      width: min(100%, 1060px);
-      min-height: calc(100vh - 48px);
-      margin: auto;
       display: grid;
       grid-template-rows: auto 1fr auto;
-      border: 1px solid var(--line);
-      background: var(--paper);
+      width: min(100%, 1120px);
+      min-height: calc(100vh - 56px);
+      margin: auto;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 32px;
+      background: rgba(18, 31, 32, 0.48);
+      box-shadow: 0 30px 90px var(--shadow), inset 0 1px rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(25px) saturate(125%);
     }
 
     .topbar,
@@ -48,114 +104,183 @@
       align-items: center;
       justify-content: space-between;
       gap: 20px;
-      padding: 18px 24px;
-      border-bottom: 1px solid var(--line);
+      padding: 22px 34px;
+      border-bottom: 1px solid var(--border);
     }
 
     .footer {
-      border-top: 1px solid var(--line);
+      border-top: 1px solid var(--border);
       border-bottom: 0;
       color: var(--muted);
-      font: 0.7rem "DM Mono", monospace;
+      font: 0.68rem "DM Mono", monospace;
       letter-spacing: 0.08em;
       text-transform: uppercase;
     }
 
     .brand,
     .status {
-      font: 500 0.75rem "DM Mono", monospace;
-      letter-spacing: 0.12em;
+      font: 500 0.72rem "DM Mono", monospace;
+      letter-spacing: 0.13em;
       text-transform: uppercase;
     }
 
-    .brand::before {
-      content: "";
-      display: inline-block;
-      width: 9px;
-      height: 9px;
-      margin-right: 10px;
-      background: var(--orange);
-      box-shadow: 0 0 14px var(--orange);
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-mark {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--coral);
+      box-shadow: 0 0 0 5px rgba(255, 157, 122, 0.12), 0 0 18px var(--coral);
     }
 
     .status {
-      color: var(--muted);
+      color: var(--mint);
     }
 
     .workspace {
       display: grid;
-      grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
-      gap: clamp(28px, 6vw, 76px);
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 410px);
+      gap: clamp(36px, 8vw, 100px);
       align-items: center;
-      padding: clamp(36px, 7vw, 84px);
+      padding: clamp(45px, 8vw, 100px);
     }
 
     .intro {
-      max-width: 620px;
+      max-width: 570px;
     }
 
     .kicker {
-      margin: 0 0 18px;
-      color: var(--lime);
-      font: 500 0.72rem "DM Mono", monospace;
-      letter-spacing: 0.14em;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 21px;
+      color: var(--mint);
+      font: 500 0.69rem "DM Mono", monospace;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
+    }
+
+    .kicker::before {
+      content: "";
+      width: 24px;
+      height: 1px;
+      background: var(--mint);
     }
 
     h1 {
-      max-width: 680px;
       margin: 0;
-      color: var(--ink);
-      font-size: clamp(3.5rem, 9vw, 7.8rem);
-      letter-spacing: -0.075em;
-      line-height: 0.84;
+      color: #f5fff8;
+      font-size: clamp(4rem, 9vw, 8.2rem);
+      font-weight: 800;
+      letter-spacing: -0.09em;
+      line-height: 0.86;
+    }
+
+    h1 span {
+      color: var(--mint);
     }
 
     .description {
-      max-width: 480px;
-      margin: 28px 0 0;
+      max-width: 465px;
+      margin: 30px 0 0;
       color: var(--muted);
       font-size: 1rem;
-      line-height: 1.6;
+      line-height: 1.7;
+    }
+
+    .steps {
+      display: flex;
+      gap: 8px;
+      margin-top: 34px;
+    }
+
+    .step-dot {
+      width: 34px;
+      height: 4px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      transition: background 300ms ease, width 300ms ease;
+    }
+
+    .step-dot.is-active {
+      width: 58px;
+      background: var(--mint);
     }
 
     .controls {
-      padding: 24px;
-      border: 1px solid var(--line);
-      background: #1d211f;
+      padding: 25px;
+      border: 1px solid var(--border);
+      border-radius: 25px;
+      background: linear-gradient(145deg, rgba(83, 116, 108, 0.36), var(--glass));
+      box-shadow: 0 18px 45px rgba(4, 16, 18, 0.28), inset 0 1px rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(22px);
+      transition: transform 300ms ease, box-shadow 300ms ease;
+    }
+
+    .controls:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 25px 55px rgba(4, 16, 18, 0.34), inset 0 1px rgba(255, 255, 255, 0.18);
+    }
+
+    .control-label {
+      display: block;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font: 0.65rem "DM Mono", monospace;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
     }
 
     .upload-label {
-      display: block;
-      padding: 28px 18px;
-      border: 1px dashed #667068;
-      color: var(--lime);
-      font: 500 0.75rem "DM Mono", monospace;
-      letter-spacing: 0.08em;
+      display: grid;
+      min-height: 174px;
+      place-items: center;
+      border: 1px dashed rgba(213, 255, 233, 0.42);
+      border-radius: 18px;
+      color: var(--mint);
+      background: rgba(255, 255, 255, 0.045);
       text-align: center;
-      text-transform: uppercase;
       cursor: pointer;
+      transition: border-color 220ms ease, background 220ms ease, transform 220ms ease;
     }
 
-    .upload-label:hover,
-    .upload-label:focus-within {
-      border-color: var(--lime);
-      background: #252b27;
+    .upload-label:hover {
+      border-color: var(--mint);
+      background: rgba(186, 255, 220, 0.1);
+      transform: scale(1.015);
     }
 
-    input[type="file"] {
+    .upload-label.has-image {
+      background-position: center;
+      background-size: cover;
+      border-style: solid;
+    }
+
+    .upload-label.has-image span {
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: rgba(10, 21, 21, 0.7);
+      backdrop-filter: blur(8px);
+    }
+
+    .upload-label input {
+      position: absolute;
       width: 1px;
       height: 1px;
       opacity: 0;
-      position: absolute;
     }
 
     .file-name {
-      min-height: 1.4em;
-      margin: 14px 0 28px;
+      min-height: 1.3em;
+      margin: 12px 2px 26px;
       overflow: hidden;
       color: var(--muted);
-      font: 0.7rem "DM Mono", monospace;
+      font: 0.68rem "DM Mono", monospace;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
@@ -163,61 +288,86 @@
     .slider-heading {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 12px;
+      gap: 12px;
+      margin-bottom: 15px;
     }
 
     .slider-heading label,
     .count {
-      font: 0.75rem "DM Mono", monospace;
-      letter-spacing: 0.08em;
+      font: 500 0.72rem "DM Mono", monospace;
+      letter-spacing: 0.07em;
       text-transform: uppercase;
     }
 
     .count {
-      color: var(--lime);
+      color: var(--mint);
     }
 
     input[type="range"] {
       width: 100%;
-      accent-color: var(--lime);
-      cursor: pointer;
+      height: 6px;
+      accent-color: var(--mint);
+      cursor: ew-resize;
     }
 
     .range-labels {
       display: flex;
       justify-content: space-between;
-      margin-top: 7px;
+      margin-top: 9px;
       color: var(--muted);
-      font: 0.65rem "DM Mono", monospace;
+      font: 0.62rem "DM Mono", monospace;
     }
 
     button {
-      width: 100%;
-      margin-top: 28px;
-      padding: 16px;
+      position: relative;
+      overflow: hidden;
       border: 0;
-      color: #11140f;
-      background: var(--lime);
-      font: 700 0.78rem "DM Mono", monospace;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      cursor: pointer;
+      transition: transform 180ms ease, filter 180ms ease, background 180ms ease;
     }
 
-    button:hover:not(:disabled),
-    button:focus-visible:not(:disabled) {
-      background: #efffa8;
+    .primary-button {
+      width: 100%;
+      margin-top: 27px;
+      padding: 16px;
+      border-radius: 13px;
+      color: #13221e;
+      background: linear-gradient(110deg, var(--mint), var(--aqua));
+      box-shadow: 0 9px 20px rgba(143, 232, 220, 0.15);
+      font: 800 0.74rem "DM Mono", monospace;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    button:hover:not(:disabled) {
+      filter: brightness(1.08);
+      transform: translateY(-2px);
+    }
+
+    button:active:not(:disabled) {
+      transform: translateY(1px) scale(0.985);
     }
 
     button:disabled {
       cursor: not-allowed;
-      opacity: 0.4;
+      opacity: 0.38;
     }
 
-    button:focus-visible,
-    input:focus-visible+span {
-      outline: 2px solid var(--orange);
-      outline-offset: 4px;
+    .ripple {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.65);
+      transform: scale(0);
+      animation: ripple 550ms ease-out;
+      pointer-events: none;
+    }
+
+    @keyframes ripple {
+      to {
+        opacity: 0;
+        transform: scale(22);
+      }
     }
 
     .screen {
@@ -226,19 +376,31 @@
       inset: 0;
       z-index: 5;
       place-items: center;
-      background: #000;
+      background: rgba(5, 9, 10, 0.93);
+      backdrop-filter: blur(18px);
     }
 
     .screen.is-active {
       display: grid;
+      animation: appear 320ms ease-out;
+    }
+
+    @keyframes appear {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
     }
 
     .screen img {
-      display: block;
-      width: min(92vw, 1100px);
-      height: min(82vh, 760px);
+      width: min(90vw, 1100px);
+      height: min(78vh, 760px);
       object-fit: contain;
       opacity: 0;
+      transition: opacity 110ms ease;
     }
 
     .screen img.is-visible {
@@ -247,25 +409,27 @@
 
     .screen-info {
       position: fixed;
-      right: 22px;
-      bottom: 18px;
-      color: #777;
-      font: 0.7rem "DM Mono", monospace;
+      right: 28px;
+      bottom: 24px;
+      color: var(--muted);
+      font: 0.68rem "DM Mono", monospace;
     }
 
     .stop-button {
       position: fixed;
-      top: 20px;
-      right: 20px;
-      width: auto;
-      margin: 0;
-      padding: 10px 14px;
-      color: var(--ink);
-      background: #242324;
-      border: 1px solid #555;
+      top: 24px;
+      right: 28px;
+      padding: 11px 15px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      background: rgba(50, 67, 65, 0.7);
+      font: 500 0.7rem "DM Mono", monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
 
-    @media (max-width: 720px) {
+    @media (max-width: 760px) {
       body {
         padding: 0;
       }
@@ -274,323 +438,194 @@
         min-height: 100vh;
         border-right: 0;
         border-left: 0;
-      }
-
-      .workspace {
-        grid-template-columns: 1fr;
-        padding: 48px 24px;
-      }
-
-      h1 {
-        font-size: clamp(3.8rem, 19vw, 6rem);
+        border-radius: 0;
       }
 
       .topbar,
       .footer {
-        padding: 16px 18px;
+        padding: 19px 22px;
+      }
+
+      .workspace {
+        grid-template-columns: 1fr;
+        gap: 42px;
+        padding: 48px 22px 60px;
+      }
+
+      h1 {
+        font-size: clamp(4rem, 20vw, 6.5rem);
+      }
+
+      .description {
+        margin-top: 24px;
+      }
+
+      .steps {
+        margin-top: 26px;
       }
     }
+
+
   </style>
+
 </head>
+
+
 
 <body>
   <main class="app">
     <header class="topbar">
-      <div class="brand">Flash Frame</div>
-      <div class="status" id="status" aria-live="polite">Ready</div>
-    </header>
+      <div class="brand"><span class="brand-mark" aria-hidden="true"></span>Flash Frame</div>
+      <div class="status" id="status" aria-live="polite">Ready to create</div>
+      </header>
 
     <section class="workspace" aria-labelledby="page-title">
       <div class="intro">
-        <p class="kicker">Image repetition tool / 001</p>
-        <h1 id="page-title">Make it<br>flash.</h1>
-        <p class="description">Choose a photo, set the number of flashes, and put it on screen. The flash is quick,
-          controlled, and easy to stop.</p>
-      </div>
+        <p class="kicker">Photo repetition tool</p>
+        <h1 id="page-title">Make it<br><span>flash.</span></h1>
+        <p class="description">Upload a photo, choose your rhythm, and send it into a full-screen sequence. Everything
+          happens locally in your browser.</p>
+        <div class="steps" aria-label="Three step process">
+          <span class="step-dot is-active" id="step-one"></span>
+          <span class="step-dot" id="step-two"></span>
+          <span class="step-dot" id="step-three"></span>
+          </div>
+        </div>
 
       <form class="controls" id="flash-form">
-        <label class="upload-label" for="photo-input">
+        <label class="control-label" for="photo-input">01 / Choose a photo</label>
+        <label class="upload-label" id="upload-label" for="photo-input">
           <input id="photo-input" type="file" accept="image/*">
-          <span>+ Select a photo</span>
-        </label>
-        <p class="file-name" id="file-name">No photo selected</p>
+          <span id="upload-copy">Tap to browse photos</span>
+          </label>
+        <p class="file-name" id="file-name">JPG, PNG, or WebP</p>
 
         <div class="slider-heading">
-          <label for="flash-count">Number of flashes</label>
+          <label for="flash-count">02 / Set the flashes</label>
           <span class="count" id="count-value">5 flashes</span>
-        </div>
+          </div>
         <input id="flash-count" type="range" min="1" max="30" value="5">
         <div class="range-labels"><span>1</span><span>30</span></div>
-        <button id="start-button" type="submit" disabled>Start flashing</button>
-      </form>
-    </section>
+        <button class="primary-button" id="start-button" type="submit" disabled>03 / Start sequence</button>
+        </form>
+      </section>
 
     <footer class="footer">
-      <span>Photo stays in your browser</span>
-      <span id="footer-count">0 / 5</span>
-    </footer>
-  </main>
+      <span>Private by design</span>
+      <span id="footer-count">0 / 5 flashes</span>
+      </footer>
+    </main>
 
   <div class="screen" id="screen" aria-hidden="true">
     <img id="preview" alt="Uploaded photo being flashed">
-    <button class="stop-button" id="stop-button" type="button">Stop</button>
+    <button class="stop-button" id="stop-button" type="button">Stop sequence</button>
     <div class="screen-info" id="screen-info">Flash 0 / 0</div>
-  </div>
+    </div>
+
 
   <script>
-    const photoInput = document.querySelector('#photo-input');
-    const fileName = document.querySelector('#file-name');
-    const flashCount = document.querySelector('#flash-count');
-    const countValue = document.querySelector('#count-value');
-    const footerCount = document.querySelector('#footer-count');
-    const startButton = document.querySelector('#start-button');
-    const form = document.querySelector('#flash-form');
-    const screen = document.querySelector('#screen');
-    const preview = document.querySelector('#preview');
-    const stopButton = document.querySelector('#stop-button');
-    const screenInfo = document.querySelector('#screen-info');
-    const status = document.querySelector('#status');
-    let imageUrl = '';
-    let flashTimer;
+       const photoInput = document.querySelector('#photo-input');
+       const uploadLabel = document.querySelector('#upload-label');
+       const uploadCopy = document.querySelector('#upload-copy');
+       const fileName = document.querySelector('#file-name');
+       const flashCount = document.querySelector('#flash-count');
+       const countValue = document.querySelector('#count-value');
+       const footerCount = document.querySelector('#footer-count');
+       const startButton = document.querySelector('#start-button');
+       const form = document.querySelector('#flash-form');
+       const screen = document.querySelector('#screen');
+       const preview = document.querySelector('#preview');
+       const stopButton = document.querySelector('#stop-button');
+       const screenInfo = document.querySelector('#screen-info');
+       const status = document.querySelector('#status');
+       const steps = [document.querySelector('#step-one'), document.querySelector('#step-two'), document.querySelector('#step-three')];
+       let imageUrl = '';
+       let flashTimer;
 
-    function updateCount() {
-      const count = Number(flashCount.value);
-      countValue.textContent = `${count} flash${count === 1 ? '' : 'es'}`;
-      footerCount.textContent = `0 / ${count}`;
-    }
+         function updateCount() {
+             const count = Number(flashCount.value);
+             countValue.textContent = `${count} flash${count === 1 ? '' : 'es'}`;
+             footerCount.textContent = `0 / ${count} flashes`;
+           }
 
-    flashCount.addEventListener('input', updateCount);
+         function setStep(step) {
+             steps.forEach((dot, index) => dot.classList.toggle('is-active', index < step));
+           }
 
-    photoInput.addEventListener('change', () => {
-      const file = photoInput.files[0];
-      if (!file) return;
-      if (imageUrl) URL.revokeObjectURL(imageUrl);
-      imageUrl = URL.createObjectURL(file);
-      fileName.textContent = file.name;
-      startButton.disabled = false;
-      status.textContent = 'Photo loaded';
-    });
+         flashCount.addEventListener('input', () => {
+             updateCount();
+             setStep(imageUrl ? 2 : 1);
+           });
 
-    function stopFlashing(message = 'Ready') {
-      clearTimeout(flashTimer);
-      screen.classList.remove('is-active');
-      screen.setAttribute('aria-hidden', 'true');
-      preview.classList.remove('is-visible');
-      status.textContent = message;
-    }
+         photoInput.addEventListener('change', () => {
+             const file = photoInput.files[0];
+             if (!file) return;
+             if (imageUrl) URL.revokeObjectURL(imageUrl);
+             imageUrl = URL.createObjectURL(file);
+             uploadLabel.style.backgroundImage = `url("${imageUrl}")`;
+             uploadLabel.classList.add('has-image');
+             uploadCopy.textContent = 'Change photo';
+             fileName.textContent = file.name;
+             startButton.disabled = false;
+             status.textContent = 'Photo ready';
+             setStep(2);
+           });
 
-    function flashPhoto(total, current = 0) {
-      if (current >= total) {
-        stopFlashing('Complete');
-        return;
-      }
-      const nextFlash = current + 1;
-      preview.classList.add('is-visible');
-      screenInfo.textContent = `Flash ${nextFlash} / ${total}`;
-      footerCount.textContent = `${nextFlash} / ${total}`;
-      flashTimer = setTimeout(() => {
-        preview.classList.remove('is-visible');
-        flashTimer = setTimeout(() => flashPhoto(total, nextFlash), 180);
-      }, 520);
-    }
+         function stopFlashing(message = 'Ready to create') {
+             clearTimeout(flashTimer);
+             screen.classList.remove('is-active');
+             screen.setAttribute('aria-hidden', 'true');
+             preview.classList.remove('is-visible');
+             status.textContent = message;
+             setStep(imageUrl ? 2 : 1);
+           }
 
-    form.addEventListener('submit', (event) => {
-      event.preventDefault();
-      if (!imageUrl) return;
-      const total = Number(flashCount.value);
-      preview.src = imageUrl;
-      screen.classList.add('is-active');
-      screen.setAttribute('aria-hidden', 'false');
-      status.textContent = 'Flashing';
-      flashPhoto(total);
-    });
+         function flashPhoto(total, current = 0) {
+             if (current >= total) {
+                 stopFlashing('Sequence complete');
+                 return;
+               }
+             const nextFlash = current + 1;
+             preview.classList.add('is-visible');
+             screenInfo.textContent = `Flash ${nextFlash} / ${total}`;
+             footerCount.textContent = `${nextFlash} / ${total} flashes`;
+             flashTimer = setTimeout(() => {
+                 preview.classList.remove('is-visible');
+                 flashTimer = setTimeout(() => flashPhoto(total, nextFlash), 180);
+               }, 520);
+           }
 
-    stopButton.addEventListener('click', () => stopFlashing('Stopped'));
-    updateCount();
-  </script>
+         form.addEventListener('submit', (event) => {
+             event.preventDefault();
+             if (!imageUrl) return;
+             const total = Number(flashCount.value);
+             preview.src = imageUrl;
+             screen.classList.add('is-active');
+             screen.setAttribute('aria-hidden', 'false');
+             status.textContent = 'Sequence running';
+             setStep(3);
+             flashPhoto(total);
+           });
+
+         stopButton.addEventListener('click', () => stopFlashing('Sequence stopped'));
+
+         document.querySelectorAll('button').forEach((button) => {
+             button.addEventListener('click', (event) => {
+                 const ripple = document.createElement('span');
+                 ripple.className = 'ripple';
+                 const rect = button.getBoundingClientRect();
+                 ripple.style.left = `${event.clientX - rect.left - 5}px`;
+                 ripple.style.top = `${event.clientY - rect.top - 5}px`;
+                 button.append(ripple);
+                 ripple.addEventListener('animationend', () => ripple.remove());
+               });
+           });
+
+         updateCount();
+     </script>
+
 </body>
 
-</html>
-<!doctype html>
-<html lang="en">
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A simple two-player game scorekeeper.">
-  <title>Game Scorekeeper</title>
-  <style>
-    :root {
-      color-scheme: dark;
-      --navy-950: #071426;
-      --navy-900: #0d2038;
-      --navy-800: #153452;
-      --blue-400: #75b8e8;
-      --blue-200: #c6e4f7;
-      --white: #f4f8fc;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      margin: 0;
-      padding: 1.5rem;
-      color: var(--white);
-      background: radial-gradient(circle at top, #17395a 0, var(--navy-950) 52%);
-      font-family: Georgia, "Times New Roman", serif;
-    }
-
-    .scorekeeper {
-      width: min(100%, 45rem);
-      padding: clamp(2rem, 6vw, 4rem);
-      border: 1px solid rgba(198, 228, 247, 0.18);
-      border-radius: 1rem;
-      background: rgba(13, 32, 56, 0.9);
-      box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.28);
-      text-align: center;
-    }
-
-    .eyebrow {
-      margin: 0 0 0.75rem;
-      color: var(--blue-400);
-      font-family: "Trebuchet MS", sans-serif;
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-    }
-
-    h1 {
-      margin: 0 0 2.5rem;
-      color: var(--blue-200);
-      font-family: "Trebuchet MS", sans-serif;
-      font-size: clamp(3rem, 10vw, 5.75rem);
-      font-weight: 900;
-      letter-spacing: 0.02em;
-      line-height: 0.95;
-      text-shadow: 0 0 1.5rem rgba(117, 184, 232, 0.45);
-      background: linear-gradient(120deg, var(--blue-400), var(--white), var(--blue-200));
-      background-size: 200% auto;
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: title-shine 5s ease-in-out infinite;
-    }
-
-    @keyframes title-shine {
-
-      0%,
-      100% {
-        background-position: 0% center;
-      }
-
-      50% {
-        background-position: 100% center;
-      }
-    }
-
-    .players {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 1rem;
-    }
-
-    .player {
-      padding: 1.5rem 1rem;
-      border: 1px solid rgba(198, 228, 247, 0.16);
-      border-radius: 0.75rem;
-      background: rgba(7, 20, 38, 0.55);
-    }
-
-    h2 {
-      margin: 0;
-      color: var(--blue-200);
-      font-size: clamp(1.25rem, 4vw, 1.75rem);
-      font-weight: 400;
-    }
-
-    .score {
-      margin: 0.5rem 0 1.25rem;
-      font-family: "Trebuchet MS", sans-serif;
-      font-size: clamp(4rem, 12vw, 6rem);
-      font-weight: 700;
-      line-height: 1;
-    }
-
-    .controls {
-      display: flex;
-      justify-content: center;
-      gap: 0.6rem;
-    }
-
-    button {
-      min-width: 4.25rem;
-      padding: 0.7rem 0.85rem;
-      border: 1px solid var(--blue-400);
-      border-radius: 0.4rem;
-      color: var(--white);
-      background: var(--navy-800);
-      font: 700 0.9rem "Trebuchet MS", sans-serif;
-      cursor: pointer;
-    }
-
-    button:hover,
-    button:focus-visible {
-      background: #1d4a70;
-    }
-
-    button:focus-visible {
-      outline: 3px solid var(--blue-200);
-      outline-offset: 3px;
-    }
-
-    @media (max-width: 30rem) {
-      .players {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
-</head>
-
-<body>
-  <main class="scorekeeper" aria-labelledby="page-title">
-    <p class="eyebrow">Match day</p>
-    <h1 id="page-title">Game Scorekeeper</h1>
-    <section class="players" aria-label="Player scores">
-      <article class="player">
-        <h2>Player One</h2>
-        <p class="score" id="score-one" aria-live="polite">0</p>
-        <div class="controls">
-          <button type="button" data-player="one" data-change="1">+1</button>
-          <button type="button" data-player="one" data-change="-1">-1</button>
-        </div>
-      </article>
-      <article class="player">
-        <h2>Player Two</h2>
-        <p class="score" id="score-two" aria-live="polite">0</p>
-        <div class="controls">
-          <button type="button" data-player="two" data-change="1">+1</button>
-          <button type="button" data-player="two" data-change="-1">-1</button>
-        </div>
-      </article>
-    </section>
-  </main>
-  <script>
-    const scores = { one: 0, two: 0 };
-
-    document.querySelectorAll('button[data-player]').forEach((button) => {
-      button.addEventListener('click', () => {
-        const player = button.dataset.player;
-        scores[player] += Number(button.dataset.change);
-        document.querySelector(`#score-${player}`).textContent = scores[player];
-      });
-    });
-  </script>
-</body>
 
 </html>
