@@ -168,7 +168,7 @@ a:focus-visible {
 #game-canvas {
   display: block;
   width: 100%;
-  aspect-ratio: 1.6;
+  aspect-ratio: 1.5;
   image-rendering: pixelated;
 }
 
@@ -556,7 +556,7 @@ a:focus-visible {
   }
 
   #game-canvas {
-    aspect-ratio: 1.12;
+    aspect-ratio: 1.5;
   }
 
   .arena-footer {
