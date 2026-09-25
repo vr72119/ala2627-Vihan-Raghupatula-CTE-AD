@@ -22,26 +22,20 @@
 
     <section class="game-layout" aria-label="Drift game">
       <div class="arena-wrap">
-        <div class="arena-heading"><span>LOT 09 / EAST INDUSTRIAL</span><span id="clock">00:00</span></div>
+        <div class="arena-heading"><span>INDUSTRIAL DISTRICT / FREE ROAM</span><span id="clock">00:00</span></div>
         <div class="arena-frame">
           <canvas id="game-canvas"
             aria-label="Top-down drift arena. Drive with WASD or arrow keys, space to handbrake."></canvas>
           <div class="start-overlay" id="start-overlay">
             <div class="overlay-tag">NIGHT SHIFT // 1996</div>
             <h1>SLIDE<br><i>OR DIE</i></h1>
-            <p>Keep it sideways. Clip a cone and the run is over.</p>
+            <p>Roam the lot, thread the cones, and keep it sideways.</p>
             <button class="start-button" id="start-button">IGNITION <span>▶</span></button>
-          </div>
-          <div class="crash-overlay is-hidden" id="crash-overlay">
-            <span class="overlay-tag">RUN ENDED</span>
-            <strong>WRECKED</strong>
-            <span id="run-result">SCORE 000000</span>
-            <button class="restart-button" id="restart-button">RUN IT BACK ↻</button>
           </div>
           <div class="toast is-hidden" id="toast">NICE SLIDE!</div>
         </div>
-        <div class="arena-footer"><span><i class="signal"></i> TRACK CONDITION: DRY / GRIPPY</span><span>OBSTACLES <b>●
-              ● ● ●</b></span></div>
+        <div class="arena-footer"><span><i class="signal"></i> SURFACE: DRY ASPHALT</span><span>OPEN LOT / WATCH THE
+            CONES</span></div>
       </div>
 
       <aside class="dashboard">
@@ -101,19 +95,19 @@
       const rpmLabel = document.querySelector('#rpm-label');
       const statusNode = document.querySelector('#game-status');
       const overlay = document.querySelector('#start-overlay');
-      const crashOverlay = document.querySelector('#crash-overlay');
       const toast = document.querySelector('#toast');
       const keys = new Set();
       const touch = new Set();
       const W = 960;
       const H = 600;
-      const track = { left: 70, top: 50, right: 890, bottom: 550 };
-      const obstacles = [
-        { x: 290, y: 175, r: 16, type: 'cone' }, { x: 480, y: 130, r: 18, type: 'barrel' },
-        { x: 700, y: 188, r: 15, type: 'cone' }, { x: 360, y: 405, r: 18, type: 'barrel' },
-        { x: 620, y: 390, r: 16, type: 'cone' }, { x: 775, y: 445, r: 15, type: 'cone' },
-        { x: 160, y: 350, r: 17, type: 'barrel' }
-      ];
+      const world = { width: 3600, height: 2400 };
+      const spawn = { x: 1800, y: 1200 };
+      const camera = { x: spawn.x, y: spawn.y };
+      const obstacles = createObstacles();
+      const skidMarks = [];
+      const dust = [];
+      let lastTirePoints = null;
+      let dustClock = 0;
       let car = {};
       let running = false;
       let lastTime = 0;
@@ -122,11 +116,25 @@
       let chain = 1;
       let chainTimer = 0;
       let driftTime = 0;
+      let impactTimer = 0;
+      let impactCooldown = 0;
       let best = Number(localStorage.getItem('midnight-lot-best') || 0);
       let toastTimer = 0;
       bestNode.textContent = formatScore(best);
 
       function formatScore(value) { return Math.floor(value).toString().padStart(6, '0').slice(-6); }
+      function createObstacles() {
+        let seed = 24719;
+        const random = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+        const items = [];
+        while (items.length < 115) {
+          const x = 80 + random() * (world.width - 160);
+          const y = 80 + random() * (world.height - 160);
+          if (Math.hypot(x - spawn.x, y - spawn.y) < 260) continue;
+          items.push({ x, y, r: 13 + Math.floor(random() * 6), type: random() < 0.72 ? 'cone' : 'barrel' });
+        }
+        return items;
+      }
       function resize() {
         const rect = canvas.getBoundingClientRect();
         const ratio = Math.min(window.devicePixelRatio || 1, 2);
@@ -136,20 +144,17 @@
         draw();
       }
       function resetCar() {
-        car = { x: 480, y: 300, vx: 0, vy: 0, heading: -Math.PI / 2, steer: 0, angle: 0, crashed: false };
+        car = { x: spawn.x, y: spawn.y, vx: 0, vy: 0, heading: -Math.PI / 2, steer: 0, angle: 0, crashed: false };
+        camera.x = car.x; camera.y = car.y; lastTirePoints = null;
+        skidMarks.length = 0; dust.length = 0; dustClock = 0;
+        impactTimer = 0; impactCooldown = 0;
         score = 0; chain = 1; chainTimer = 0; driftTime = 0; elapsed = 0;
         updateHud(0, 0);
       }
       function start() {
         resetCar(); running = true; lastTime = performance.now();
-        overlay.classList.add('is-hidden'); crashOverlay.classList.add('is-hidden');
+        overlay.classList.add('is-hidden');
         statusNode.textContent = 'RUN ACTIVE'; requestAnimationFrame(loop);
-      }
-      function finish() {
-        running = false; statusNode.textContent = 'RUN ENDED';
-        document.querySelector('#run-result').textContent = `SCORE ${formatScore(score)}`;
-        crashOverlay.classList.remove('is-hidden');
-        if (score > best) { best = score; localStorage.setItem('midnight-lot-best', String(best)); bestNode.textContent = formatScore(best); }
       }
       function loop(now) {
         if (!running) return;
@@ -159,6 +164,9 @@
       function pressed(...names) { return names.some(name => keys.has(name) || touch.has(name)); }
       function update(dt) {
         elapsed += dt;
+        impactTimer = Math.max(0, impactTimer - dt);
+        impactCooldown = Math.max(0, impactCooldown - dt);
+        if (impactTimer === 0 && statusNode.textContent === 'IMPACT!') statusNode.textContent = 'RUN ACTIVE';
         const throttle = pressed('w', 'ArrowUp', 'throttle') ? 1 : pressed('s', 'ArrowDown') ? -0.62 : 0;
         const steerInput = (pressed('d', 'ArrowRight', 'right') ? 1 : 0) - (pressed('a', 'ArrowLeft', 'left') ? 1 : 0);
         const handbrake = pressed(' ', 'Space', 'brake');
@@ -169,9 +177,9 @@
         forwardSpeed = Math.max(-105, Math.min(360, forwardSpeed));
         const steerTarget = steerInput * Math.min(1, speedAbs / 90);
         car.steer += (steerTarget - car.steer) * Math.min(1, dt * 7);
-        const yawGrip = handbrake ? 2.65 : 1.8;
+        const yawGrip = handbrake ? 3.05 : 1.8;
         car.heading += car.steer * yawGrip * (forwardSpeed / 220) * dt;
-        const grip = handbrake ? 0.82 : 5.8;
+        const grip = handbrake ? (steerInput ? 1.55 : 1.05) : 5.8;
         const newForwardX = Math.cos(car.heading), newForwardY = Math.sin(car.heading);
         const lateral = car.vx * -newForwardY + car.vy * newForwardX;
         const retainedLateral = lateral * Math.exp(-grip * dt);
@@ -182,16 +190,44 @@
         car.x += car.vx * dt; car.y += car.vy * dt;
         car.angle = Math.atan2(car.vx * -Math.sin(car.heading) + car.vy * Math.cos(car.heading), Math.max(1, forwardSpeed));
 
-        const margin = 34;
-        if (car.x < track.left + margin || car.x > track.right - margin || car.y < track.top + margin || car.y > track.bottom - margin) { finish(); return; }
-        for (const obstacle of obstacles) {
-          if (Math.hypot(car.x - obstacle.x, car.y - obstacle.y) < obstacle.r + 13) { finish(); return; }
+        const margin = 48;
+        let normalX = 0, normalY = 0;
+        if (car.x < margin) { car.x = margin; normalX += 1; }
+        if (car.x > world.width - margin) { car.x = world.width - margin; normalX -= 1; }
+        if (car.y < margin) { car.y = margin; normalY += 1; }
+        if (car.y > world.height - margin) { car.y = world.height - margin; normalY -= 1; }
+        if (normalX || normalY) {
+          const magnitude = Math.hypot(normalX, normalY);
+          triggerImpact(normalX / magnitude, normalY / magnitude, car.x, car.y, true);
+        } else {
+          for (const obstacle of obstacles) {
+            const dx = car.x - obstacle.x, dy = car.y - obstacle.y;
+            const distance = Math.hypot(dx, dy);
+            const separation = obstacle.r + 29;
+            if (distance < separation) {
+              const nx = distance > 0 ? dx / distance : Math.cos(car.heading);
+              const ny = distance > 0 ? dy / distance : Math.sin(car.heading);
+              car.x = obstacle.x + nx * separation; car.y = obstacle.y + ny * separation;
+              triggerImpact(nx, ny, obstacle.x + nx * obstacle.r, obstacle.y + ny * obstacle.r);
+              break;
+            }
+          }
         }
+        updateEffects(dt, handbrake, speedAbs);
+        const cameraEase = 1 - Math.exp(-dt * 5.5);
+        camera.x += (car.x - camera.x) * cameraEase;
+        camera.y += (car.y - camera.y) * cameraEase;
+        camera.x = Math.max(W / 2, Math.min(world.width - W / 2, camera.x));
+        camera.y = Math.max(H / 2, Math.min(world.height - H / 2, camera.y));
         const drifting = speedAbs > 105 && Math.abs(car.angle) > 0.22;
         if (drifting) {
           driftTime += dt; chainTimer = 1.15;
           const intensity = Math.min(1, (Math.abs(car.angle) - 0.2) / 0.75) * Math.min(1, speedAbs / 240);
           score += dt * (32 + intensity * 115) * chain;
+          if (score > best) {
+            best = score; localStorage.setItem('midnight-lot-best', String(Math.floor(best)));
+            bestNode.textContent = formatScore(best);
+          }
           if (driftTime > 1.1) chain = Math.min(5, 1 + Math.floor(driftTime / 1.1) * 0.5);
           if (intensity > 0.55 && Math.random() < dt * 2.5) showToast(['CLEAN!', 'NICE SLIDE!', 'KEEP IT LOOSE!'][Math.floor(Math.random() * 3)]);
         } else {
@@ -199,6 +235,62 @@
           if (chainTimer <= 0) chain = 1;
         }
         updateHud(speedAbs, Math.abs(car.angle));
+      }
+      function updateEffects(dt, handbrake, speed) {
+        const drifting = speed > 110 && Math.abs(car.angle) > 0.2;
+        for (const mark of skidMarks) mark.age += dt;
+        while (skidMarks.length && skidMarks[0].age > 32) skidMarks.shift();
+        for (let index = dust.length - 1; index >= 0; index--) {
+          const particle = dust[index];
+          particle.x += particle.vx * dt; particle.y += particle.vy * dt;
+          particle.life -= dt; particle.size += dt * 3;
+          if (particle.life <= 0) dust.splice(index, 1);
+        }
+        if (!drifting) { lastTirePoints = null; return; }
+
+        const sideX = -Math.sin(car.heading), sideY = Math.cos(car.heading);
+        const rearX = car.x - Math.cos(car.heading) * 18, rearY = car.y - Math.sin(car.heading) * 18;
+        const current = {
+          left: { x: rearX - sideX * 10, y: rearY - sideY * 10 },
+          right: { x: rearX + sideX * 10, y: rearY + sideY * 10 }
+        };
+        if (lastTirePoints && Math.hypot(current.left.x - lastTirePoints.left.x, current.left.y - lastTirePoints.left.y) > 3) {
+          skidMarks.push({ from: lastTirePoints.left, to: current.left, age: 0 });
+          skidMarks.push({ from: lastTirePoints.right, to: current.right, age: 0 });
+          if (skidMarks.length > 1800) skidMarks.splice(0, 2);
+        }
+        lastTirePoints = current;
+
+        dustClock += dt;
+        if (dustClock > (handbrake ? 0.035 : 0.07) && dust.length < 90) {
+          dustClock = 0;
+          for (const wheel of [current.left, current.right]) {
+            dust.push({ x: wheel.x, y: wheel.y, vx: car.vx * -0.14 + (Math.random() - 0.5) * 38, vy: car.vy * -0.14 + (Math.random() - 0.5) * 38, life: 0.35 + Math.random() * 0.4, maxLife: 0.75, size: 3 + Math.random() * 3 });
+          }
+        }
+      }
+      function triggerImpact(normalX, normalY, x, y, boundary = false) {
+        chain = 1; chainTimer = 0; driftTime = 0; lastTirePoints = null;
+        const intoWall = car.vx * normalX + car.vy * normalY;
+        if (intoWall < 0) {
+          car.vx -= normalX * intoWall * 1.35;
+          car.vy -= normalY * intoWall * 1.35;
+        }
+        car.vx *= 0.72; car.vy *= 0.72;
+        if (boundary) {
+          const headingX = Math.cos(car.heading), headingY = Math.sin(car.heading);
+          const headingDot = headingX * normalX + headingY * normalY;
+          if (headingDot < 0) car.heading = Math.atan2(headingY - 2 * headingDot * normalY, headingX - 2 * headingDot * normalX);
+        }
+        if (impactCooldown > 0) return;
+        impactTimer = 0.58; impactCooldown = 0.32;
+        statusNode.textContent = 'IMPACT!';
+        showToast('CHAIN LOST!');
+        for (let index = 0; index < 12; index++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 35 + Math.random() * 115;
+          dust.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life: 0.24 + Math.random() * 0.32, maxLife: 0.56, size: 3 + Math.floor(Math.random() * 4), color: index % 3 === 0 ? '#ef7446' : '#e5dfb8' });
+        }
       }
       function updateHud(speed, angle) {
         scoreNode.textContent = formatScore(score);
@@ -218,26 +310,70 @@
       }
       function draw() {
         ctx.clearRect(0, 0, W, H);
-        ctx.fillStyle = '#a7a263'; ctx.fillRect(0, 0, W, H);
-        ctx.fillStyle = '#9a9254';
-        for (let x = 8; x < W; x += 29) for (let y = 8; y < H; y += 27) if ((x * 3 + y * 7) % 5 === 0) ctx.fillRect(x, y, 3, 3);
-        ctx.fillStyle = '#777348'; ctx.fillRect(track.left - 12, track.top - 12, track.right - track.left + 24, track.bottom - track.top + 24);
-        ctx.fillStyle = '#373a32'; ctx.fillRect(track.left, track.top, track.right - track.left, track.bottom - track.top);
-        ctx.strokeStyle = '#d8d0a0'; ctx.lineWidth = 3; ctx.setLineDash([22, 22]);
-        ctx.strokeRect(track.left + 12, track.top + 12, track.right - track.left - 24, track.bottom - track.top - 24); ctx.setLineDash([]);
-        ctx.strokeStyle = '#6e7061'; ctx.lineWidth = 1;
-        for (let y = track.top + 24; y < track.bottom; y += 24) { ctx.beginPath(); ctx.moveTo(track.left + 18, y); ctx.lineTo(track.right - 18, y); ctx.stroke(); }
-        drawTrackMarks(); drawObstacles(); drawCar();
+        ctx.save();
+        ctx.translate(W / 2 - camera.x, H / 2 - camera.y);
+        drawWorld(); drawSkids(); drawDust(); drawObstacles(); drawCar();
+        ctx.restore();
         ctx.fillStyle = '#181b17'; ctx.fillRect(0, 0, W, 27);
         ctx.fillStyle = '#c3be89'; ctx.font = '10px monospace'; ctx.fillText('MIDNIGHT LOT // 2AM SESSION', 16, 17);
         ctx.textAlign = 'right'; ctx.fillText('NO SIGNAL  /  NO RULES', W - 16, 17); ctx.textAlign = 'left';
       }
-      function drawTrackMarks() {
-        ctx.fillStyle = '#c5bc88';
-        for (let i = 0; i < 22; i++) { const x = track.left + 28 + i * 36; ctx.fillRect(x, track.top - 8, 18, 5); ctx.fillRect(x, track.bottom + 3, 18, 5); }
+      function drawWorld() {
+        ctx.fillStyle = '#a7a263'; ctx.fillRect(0, 0, world.width, world.height);
+        ctx.fillStyle = '#373a32'; ctx.fillRect(24, 24, world.width - 48, world.height - 48);
+        const viewLeft = camera.x - W / 2 - 30, viewRight = camera.x + W / 2 + 30;
+        const viewTop = camera.y - H / 2 - 30, viewBottom = camera.y + H / 2 + 30;
+        for (let x = Math.max(24, Math.floor(viewLeft / 19) * 19); x < Math.min(world.width - 24, viewRight); x += 19) {
+          for (let y = Math.max(24, Math.floor(viewTop / 17) * 17); y < Math.min(world.height - 24, viewBottom); y += 17) {
+            const grain = ((Math.floor(x / 19) * 73856093) ^ (Math.floor(y / 17) * 19349663)) >>> 0;
+            if (grain % 7 < 3) {
+              ctx.fillStyle = grain % 2 ? '#414339' : '#30332d';
+              ctx.fillRect(x, y, grain % 3 ? 2 : 3, grain % 5 ? 2 : 3);
+            }
+          }
+        }
+        for (let x = Math.max(24, Math.floor(viewLeft / 96) * 96); x < Math.min(world.width - 24, viewRight); x += 96) {
+          for (let y = Math.max(24, Math.floor(viewTop / 68) * 68); y < Math.min(world.height - 24, viewBottom); y += 68) {
+            const wear = (Math.floor(x / 96) * 92821 + Math.floor(y / 68) * 68917) % 11;
+            if (wear === 0) {
+              ctx.fillStyle = '#33362f'; ctx.fillRect(x + 8, y + 5, 17, 7);
+              ctx.fillStyle = '#3e4036'; ctx.fillRect(x + 11, y + 7, 10, 3);
+            }
+          }
+        }
+        ctx.strokeStyle = '#535447'; ctx.lineWidth = 2;
+        const firstStripeX = Math.max(80, Math.floor(viewLeft / 220) * 220);
+        const firstStripeY = Math.max(80, Math.floor(viewTop / 170) * 170);
+        for (let x = firstStripeX; x < Math.min(world.width - 80, viewRight); x += 220) {
+          for (let y = firstStripeY; y < Math.min(world.height - 80, viewBottom); y += 170) {
+            ctx.strokeRect(x, y, 190, 135);
+            ctx.fillStyle = '#77745a'; ctx.fillRect(x + 8, y + 8, 4, 4);
+          }
+        }
+        ctx.strokeStyle = '#d8d0a0'; ctx.lineWidth = 5; ctx.setLineDash([28, 24]);
+        ctx.strokeRect(40, 40, world.width - 80, world.height - 80); ctx.setLineDash([]);
         ctx.fillStyle = '#b64d35';
-        for (let i = 0; i < 13; i++) { const x = track.left + 24 + i * 62; ctx.fillRect(x, track.top - 8, 9, 5); ctx.fillRect(x, track.bottom + 3, 9, 5); }
-        ctx.fillStyle = '#cbc39a'; ctx.font = '9px monospace'; ctx.fillText('PIT LANE', 82, 90); ctx.fillText('KEEP OUT', 810, 90);
+        for (let i = 0; i < 18; i++) {
+          const x = 55 + i * 205;
+          ctx.fillRect(x, 31, 14, 9); ctx.fillRect(x, world.height - 40, 14, 9);
+        }
+      }
+      function drawSkids() {
+        ctx.lineWidth = 3; ctx.lineCap = 'square';
+        for (const mark of skidMarks) {
+          ctx.globalAlpha = Math.max(0, 0.42 * (1 - mark.age / 32));
+          ctx.strokeStyle = '#11130f'; ctx.beginPath();
+          ctx.moveTo(mark.from.x, mark.from.y); ctx.lineTo(mark.to.x, mark.to.y); ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+      }
+      function drawDust() {
+        for (const particle of dust) {
+          ctx.globalAlpha = Math.max(0, particle.life / particle.maxLife) * 0.66;
+          ctx.fillStyle = '#c9c19a';
+          ctx.fillRect(particle.x, particle.y, particle.size, particle.size);
+        }
+        ctx.globalAlpha = 1;
       }
       function drawObstacles() {
         for (const item of obstacles) {
@@ -255,21 +391,24 @@
       }
       function drawCar() {
         if (!car.x) return;
-        const speed = Math.hypot(car.vx, car.vy);
-        if (speed > 105 && Math.abs(car.angle) > 0.22 && running) {
-          const backX = car.x - Math.cos(car.heading) * 12, backY = car.y - Math.sin(car.heading) * 12;
-          ctx.fillStyle = 'rgba(220,214,170,.36)';
-          ctx.fillRect(backX + Math.sin(car.heading) * 9 - 2, backY - Math.cos(car.heading) * 9 - 2, 5, 5);
-          ctx.fillRect(backX - Math.sin(car.heading) * 9 - 2, backY + Math.cos(car.heading) * 9 - 2, 5, 5);
-        }
         ctx.save(); ctx.translate(car.x, car.y); ctx.rotate(car.heading);
-        ctx.fillStyle = '#141716'; ctx.fillRect(-19, -14, 10, 5); ctx.fillRect(9, -14, 10, 5); ctx.fillRect(-19, 9, 10, 5); ctx.fillRect(9, 9, 10, 5);
-        ctx.fillStyle = '#d34435'; ctx.fillRect(-20, -10, 40, 20);
-        ctx.fillStyle = '#ed6a46'; ctx.fillRect(-14, -12, 27, 24);
-        ctx.fillStyle = '#9bcbc1'; ctx.fillRect(-7, -8, 13, 16);
-        ctx.fillStyle = '#f8d67c'; ctx.fillRect(14, -8, 4, 5); ctx.fillRect(14, 3, 4, 5);
-        ctx.fillStyle = '#fff0b4'; ctx.fillRect(-20, -7, 3, 4); ctx.fillRect(-20, 3, 3, 4);
-        ctx.fillStyle = '#252a26'; ctx.fillRect(-3, -10, 3, 20);
+        ctx.fillStyle = 'rgba(0,0,0,.42)'; ctx.fillRect(-27, -12, 56, 29);
+        ctx.fillStyle = '#11130f'; ctx.fillRect(-21, -16, 11, 6); ctx.fillRect(12, -15, 11, 6); ctx.fillRect(-21, 10, 11, 6); ctx.fillRect(12, 9, 11, 6);
+        ctx.fillStyle = '#d34435';
+        ctx.beginPath();
+        ctx.moveTo(-28, -9); ctx.lineTo(-24, -14); ctx.lineTo(-10, -15); ctx.lineTo(-4, -12);
+        ctx.lineTo(12, -11); ctx.lineTo(21, -8); ctx.lineTo(27, -5); ctx.lineTo(29, 0);
+        ctx.lineTo(27, 5); ctx.lineTo(21, 8); ctx.lineTo(12, 11); ctx.lineTo(-4, 12);
+        ctx.lineTo(-10, 15); ctx.lineTo(-24, 14); ctx.lineTo(-28, 9); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#ed6a46'; ctx.fillRect(-21, -10, 17, 20); ctx.fillRect(-4, -9, 18, 18);
+        ctx.fillStyle = '#a9c7bb'; ctx.fillRect(-13, -8, 7, 16); ctx.fillRect(-3, -8, 12, 16);
+        ctx.fillStyle = '#d9ded0'; ctx.fillRect(-5, -7, 2, 14);
+        ctx.fillStyle = '#c6533e'; ctx.fillRect(12, -8, 10, 16);
+        ctx.fillStyle = '#f3bd69'; ctx.fillRect(19, -5, 7, 3); ctx.fillRect(19, 3, 7, 3);
+        ctx.fillStyle = '#fff0b4'; ctx.fillRect(26, -7, 3, 4); ctx.fillRect(26, 3, 3, 4);
+        ctx.fillStyle = '#ff7c62'; ctx.fillRect(-26, -10, 5, 4); ctx.fillRect(-26, 6, 5, 4);
+        ctx.fillStyle = '#11130f'; ctx.fillRect(-29, -15, 4, 30); ctx.fillRect(-25, -13, 3, 4); ctx.fillRect(-25, 9, 3, 4);
+        ctx.fillStyle = '#ed6a46'; ctx.fillRect(-27, -13, 2, 5); ctx.fillRect(-27, 8, 2, 5);
         ctx.restore();
       }
       window.addEventListener('resize', resize);
