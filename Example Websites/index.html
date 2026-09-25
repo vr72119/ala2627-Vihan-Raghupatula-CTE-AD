@@ -100,6 +100,7 @@
       const touch = new Set();
       const W = 960;
       const H = 600;
+      const ZOOM = 0.7;
       const world = { width: 3600, height: 2400 };
       const spawn = { x: 1800, y: 1200 };
       const camera = { x: spawn.x, y: spawn.y };
@@ -214,11 +215,8 @@
           }
         }
         updateEffects(dt, handbrake, speedAbs);
-        const cameraEase = 1 - Math.exp(-dt * 5.5);
-        camera.x += (car.x - camera.x) * cameraEase;
-        camera.y += (car.y - camera.y) * cameraEase;
-        camera.x = Math.max(W / 2, Math.min(world.width - W / 2, camera.x));
-        camera.y = Math.max(H / 2, Math.min(world.height - H / 2, camera.y));
+        camera.x = car.x;
+        camera.y = car.y;
         const drifting = speedAbs > 105 && Math.abs(car.angle) > 0.22;
         if (drifting) {
           driftTime += dt; chainTimer = 1.15;
@@ -311,7 +309,9 @@
       function draw() {
         ctx.clearRect(0, 0, W, H);
         ctx.save();
-        ctx.translate(W / 2 - camera.x, H / 2 - camera.y);
+        ctx.translate(W / 2, H / 2);
+        ctx.scale(ZOOM, ZOOM);
+        ctx.translate(-camera.x, -camera.y);
         drawWorld(); drawSkids(); drawDust(); drawObstacles(); drawCar();
         ctx.restore();
         ctx.fillStyle = '#181b17'; ctx.fillRect(0, 0, W, 27);
@@ -319,10 +319,12 @@
         ctx.textAlign = 'right'; ctx.fillText('NO SIGNAL  /  NO RULES', W - 16, 17); ctx.textAlign = 'left';
       }
       function drawWorld() {
+        ctx.fillStyle = '#a7a263';
+        ctx.fillRect(-W / ZOOM, -H / ZOOM, world.width + W * 2 / ZOOM, world.height + H * 2 / ZOOM);
         ctx.fillStyle = '#a7a263'; ctx.fillRect(0, 0, world.width, world.height);
         ctx.fillStyle = '#373a32'; ctx.fillRect(24, 24, world.width - 48, world.height - 48);
-        const viewLeft = camera.x - W / 2 - 30, viewRight = camera.x + W / 2 + 30;
-        const viewTop = camera.y - H / 2 - 30, viewBottom = camera.y + H / 2 + 30;
+        const viewLeft = camera.x - W / (2 * ZOOM) - 30, viewRight = camera.x + W / (2 * ZOOM) + 30;
+        const viewTop = camera.y - H / (2 * ZOOM) - 30, viewBottom = camera.y + H / (2 * ZOOM) + 30;
         for (let x = Math.max(24, Math.floor(viewLeft / 19) * 19); x < Math.min(world.width - 24, viewRight); x += 19) {
           for (let y = Math.max(24, Math.floor(viewTop / 17) * 17); y < Math.min(world.height - 24, viewBottom); y += 17) {
             const grain = ((Math.floor(x / 19) * 73856093) ^ (Math.floor(y / 17) * 19349663)) >>> 0;
