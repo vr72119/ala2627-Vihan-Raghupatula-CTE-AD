@@ -4,80 +4,96 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#15231d">
-  <meta name="description" content="Slide through the lot, miss the cones, and keep your drift chain alive.">
-  <title>Midnight Lot | Drift Club</title>
+  <meta name="theme-color" content="#101513">
+  <meta name="description" content="Choose your machine and drift through the streets of Japan after dark.">
+  <title>Yoru Drift | Midnight in Japan</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
   <main class="cabinet">
     <header class="topbar">
-      <a class="brand" href="#" aria-label="Midnight Lot home"><span class="brand-mark">ML</span><span>MIDNIGHT LOT
-          <b>///</b></span></a>
-      <div class="top-readout"><span class="live-dot"></span><span id="game-status" aria-live="polite">FREE ROAM</span>
-      </div>
-      <div class="best-readout"><span>BEST RUN</span><strong id="best-score">000000</strong></div>
+      <a class="brand" href="#" aria-label="Yoru Drift home"><span class="brand-mark">夜</span><span>YORU DRIFT
+          <small>東京 // TOKYO</small></span></a>
+      <div class="top-readout"><span class="live-dot"></span><span id="game-status" aria-live="polite">GARAGE
+          OPEN</span></div>
+      <div class="best-readout"><span>PERSONAL BEST</span><strong id="best-score">000000</strong></div>
     </header>
 
     <section class="game-layout" aria-label="Drift game">
       <div class="arena-wrap">
-        <div class="arena-heading"><span>INDUSTRIAL DISTRICT / FREE ROAM</span><span id="clock">00:00</span></div>
+        <div class="arena-heading"><span id="arena-title">KITA PARKING / TOKYO</span><span id="clock">00:00</span></div>
         <div class="arena-frame">
           <canvas id="game-canvas"
             aria-label="Top-down drift arena. Drive with WASD or arrow keys, space to handbrake."></canvas>
           <div class="start-overlay" id="start-overlay">
-            <div class="overlay-tag">NIGHT SHIFT // 1996</div>
-            <h1>SLIDE<br><i>OR DIE</i></h1>
-            <p>Roam the lot, thread the cones, and keep it sideways.</p>
-            <button class="start-button" id="start-button">IGNITION <span>▶</span></button>
+            <div class="menu-panel">
+              <div class="overlay-tag"><span>夜のドライブ</span> NIGHT DRIVE · TOKYO, JP</div>
+              <h1>YORU<br><i>DRIFT</i></h1>
+              <p class="menu-copy">The city is yours after dark.</p>
+              <div class="menu-section">
+                <div class="section-heading"><span>01 / SELECT ROUTE</span><span>ロケーション</span></div>
+                <div class="map-options" role="group" aria-label="Select a map">
+                  <button class="map-option is-selected" type="button" data-map="parking" aria-pressed="true">
+                    <span class="map-index">A</span><span><strong>KITA PARKING</strong><small>Open lot ·
+                        Easy</small></span><span class="map-arrow">↗</span>
+                  </button>
+                  <button class="map-option" type="button" data-map="city" aria-pressed="false">
+                    <span class="map-index">B</span><span><strong>SHUTO STREETS</strong><small>Tokyo loop ·
+                        Traffic</small></span><span class="map-arrow">↗</span>
+                  </button>
+                </div>
+              </div>
+              <div class="menu-section garage-options">
+                <label class="car-choice" for="car-select"><span class="section-heading">02 / YOUR MACHINE</span>
+                  <select id="car-select" aria-label="Choose your car">
+                    <option value="silvia">NISSAN SILVIA S15</option>
+                    <option value="ae86">TOYOTA AE86</option>
+                    <option value="rx7">MAZDA RX-7 FD</option>
+                  </select>
+                </label>
+                <div class="paint-choice"><span class="section-heading">03 / BODY COLOR</span>
+                  <div class="paint-swatches" role="group" aria-label="Choose paint color">
+                    <button type="button" class="paint-swatch is-selected" data-paint="#d95748" style="--swatch:#d95748"
+                      aria-label="Vermilion red" aria-pressed="true"></button>
+                    <button type="button" class="paint-swatch" data-paint="#d8d7c9" style="--swatch:#d8d7c9"
+                      aria-label="Pearl white" aria-pressed="false"></button>
+                    <button type="button" class="paint-swatch" data-paint="#e5b84f" style="--swatch:#e5b84f"
+                      aria-label="Sunset yellow" aria-pressed="false"></button>
+                    <button type="button" class="paint-swatch" data-paint="#5eaaa0" style="--swatch:#5eaaa0"
+                      aria-label="Lagoon teal" aria-pressed="false"></button>
+                    <button type="button" class="paint-swatch" data-paint="#8495c2" style="--swatch:#8495c2"
+                      aria-label="Indigo blue" aria-pressed="false"></button>
+                  </div>
+                </div>
+              </div>
+              <button class="start-button" id="start-button" type="button">START DRIVING <span>↗</span></button>
+              <div class="menu-footnote"><span>WASD / ARROWS TO DRIVE</span><span>SPACE · HANDBRAKE</span></div>
+            </div>
           </div>
+          <div class="loading-overlay is-hidden" id="loading-overlay" aria-live="polite"><span
+              class="loading-mark">夜</span><span>PREPARING YOUR ROUTE</span><i></i></div>
           <div class="toast is-hidden" id="toast">NICE SLIDE!</div>
+          <aside class="dashboard is-hidden" id="dashboard" aria-label="Driving telemetry">
+            <div class="hud-score"><span>RUN SCORE</span><strong id="score">000000</strong><span class="chain-row">CHAIN
+                <b id="chain">x 1.0</b></span><span class="chain-meter"><i id="chain-meter"></i></span></div>
+            <div class="hud-speed"><span>SPEED</span><strong id="speed">000</strong><small>KM/H</small></div>
+            <div class="hud-angle"><span>SLIP ANGLE</span><strong id="angle-label">0°</strong><span
+                class="meter slip-meter"><i id="slip-meter"></i></span></div>
+            <div class="touch-controls" aria-label="Touch driving controls">
+              <button data-control="left" aria-label="Steer left">←</button>
+              <button data-control="brake" aria-label="Handbrake">HB</button>
+              <button data-control="right" aria-label="Steer right">→</button>
+              <button data-control="throttle" aria-label="Accelerate">↑</button>
+            </div>
+          </aside>
         </div>
-        <div class="arena-footer"><span><i class="signal"></i> SURFACE: DRY ASPHALT</span><span>OPEN LOT / WATCH THE
-            CONES</span></div>
+        <div class="arena-footer"><span><i class="signal"></i> <span id="surface-label">DRY ASPHALT</span></span><span
+            id="route-caption">PRACTICE LOT · TOKYO, JAPAN</span></div>
       </div>
-
-      <aside class="dashboard">
-        <div class="score-panel">
-          <div class="panel-cap"><span>RUN SCORE</span><span class="tiny-star">★</span></div>
-          <strong id="score">000000</strong>
-          <div class="chain-row"><span>DRIFT CHAIN</span><b id="chain">x 1.0</b></div>
-          <div class="chain-meter"><span id="chain-meter"></span></div>
-          <div class="score-note" id="score-note">GET SIDEWAYS TO SCORE</div>
-        </div>
-
-        <div class="telemetry">
-          <div class="panel-cap"><span>TELEMETRY</span><span>01</span></div>
-          <div class="speed-row"><span>VELOCITY</span>
-            <div><strong id="speed">000</strong><small> KM/H</small></div>
-          </div>
-          <div class="meter-label"><span>ENGINE</span><span id="rpm-label">IDLE</span></div>
-          <div class="meter"><span id="rpm-meter"></span></div>
-          <div class="meter-label"><span>SLIP ANGLE</span><span id="angle-label">0°</span></div>
-          <div class="meter slip-meter"><span id="slip-meter"></span></div>
-        </div>
-
-        <div class="controls-panel">
-          <div class="panel-cap"><span>DRIVER INPUT</span><span>WASD</span></div>
-          <div class="key-grid" aria-hidden="true"><span class="key key-w">W</span><span class="key">A</span><span
-              class="key">S</span><span class="key">D</span><span class="key-space">SPACE
-              <small>HANDBRAKE</small></span></div>
-          <p>Throttle + steer into the slide.<br>Tap <b>SPACE</b> to kick the rear out.</p>
-        </div>
-        <div class="touch-controls" aria-label="Touch driving controls">
-          <button data-control="left" aria-label="Steer left">◀</button>
-          <button data-control="brake" aria-label="Handbrake">HB</button>
-          <button data-control="right" aria-label="Steer right">▶</button>
-          <button data-control="throttle" aria-label="Accelerate">▲</button>
-        </div>
-        <div class="warning"><span>!</span>
-          <p>NO BUMPERS.<br>NO SECOND CHANCES.</p>
-        </div>
-      </aside>
     </section>
-    <footer class="footer"><span>DRIFT CLUB <b>EST. 1996</b></span><span>USE WASD / ARROWS · SPACE TO
-        HANDBRAKE</span><span>INSERT COIN <b>∞</b></span></footer>
+    <footer class="footer"><span>夜 · TOKYO AFTER DARK</span><span>FREE ROAM <b>NO TIMER · NO LIMITS</b></span><span>YORU
+        DRIFT <b>01</b></span></footer>
   </main>
 
   <script>
@@ -91,19 +107,30 @@
       const chainMeter = document.querySelector('#chain-meter');
       const angleNode = document.querySelector('#angle-label');
       const slipMeter = document.querySelector('#slip-meter');
-      const rpmMeter = document.querySelector('#rpm-meter');
-      const rpmLabel = document.querySelector('#rpm-label');
       const statusNode = document.querySelector('#game-status');
       const overlay = document.querySelector('#start-overlay');
+      const loadingOverlay = document.querySelector('#loading-overlay');
+      const dashboard = document.querySelector('#dashboard');
       const toast = document.querySelector('#toast');
+      const carSelect = document.querySelector('#car-select');
+      const mapButtons = [...document.querySelectorAll('[data-map]')];
+      const paintButtons = [...document.querySelectorAll('[data-paint]')];
+      const arenaTitle = document.querySelector('#arena-title');
+      const routeCaption = document.querySelector('#route-caption');
+      const surfaceLabel = document.querySelector('#surface-label');
+      const startButton = document.querySelector('#start-button');
       const keys = new Set();
       const touch = new Set();
-      const W = 960;
-      const H = 640;
       const world = { width: 3600, height: 2400 };
-      const MAP_SCALE = Math.min(W / world.width, H / world.height);
       const spawn = { x: 1800, y: 1200 };
       const obstacles = createObstacles();
+      const traffic = createTraffic();
+      let mapType = 'parking';
+      let carPaint = paintButtons[0].dataset.paint;
+      let carModel = carSelect.value;
+      let audioContext = null;
+      let squealGain = null;
+      let squealFilter = null;
       const skidMarks = [];
       const dust = [];
       let lastTirePoints = null;
@@ -124,23 +151,36 @@
 
       function formatScore(value) { return Math.floor(value).toString().padStart(6, '0').slice(-6); }
       function createObstacles() {
-        let seed = 24719;
-        const random = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
         const items = [];
-        while (items.length < 115) {
-          const x = 80 + random() * (world.width - 160);
-          const y = 80 + random() * (world.height - 160);
-          if (Math.hypot(x - spawn.x, y - spawn.y) < 260) continue;
-          items.push({ x, y, r: 13 + Math.floor(random() * 6), type: random() < 0.72 ? 'cone' : 'barrel' });
+        for (let index = 0; index < 26; index++) {
+          items.push({
+            x: 720 + index * 86,
+            y: 1320 + Math.sin(index * 0.9) * 42,
+            r: 16,
+            type: index % 5 === 0 ? 'barrel' : 'cone'
+          });
         }
         return items;
+      }
+      function createTraffic() {
+        const cars = [];
+        for (let road = 0; road < world.height; road += 600) {
+          for (let lane = 0; lane < 2; lane++) {
+            cars.push({ x: 120 + road % 900, y: road + 65 + lane * 65, heading: 0, speed: 105 + lane * 24, color: lane ? '#d5bd48' : '#67a9a0' });
+            cars.push({ x: 850 + road % 1100, y: road + 65 + lane * 65, heading: Math.PI, speed: 90 + lane * 20, color: lane ? '#d8d9cf' : '#b95a43' });
+          }
+        }
+        for (let road = 0; road < world.width; road += 600) {
+          cars.push({ x: road + 65, y: 250 + road % 700, heading: Math.PI / 2, speed: 100, color: '#d5bd48' });
+          cars.push({ x: road + 125, y: 950 + road % 800, heading: -Math.PI / 2, speed: 115, color: '#67a9a0' });
+        }
+        return cars;
       }
       function resize() {
         const rect = canvas.getBoundingClientRect();
         const ratio = Math.min(window.devicePixelRatio || 1, 2);
         canvas.width = Math.round(rect.width * ratio);
         canvas.height = Math.round(rect.height * ratio);
-        ctx.setTransform(canvas.width / W, 0, 0, canvas.height / H, 0, 0);
         draw();
       }
       function resetCar() {
@@ -152,9 +192,20 @@
         updateHud(0, 0);
       }
       function start() {
-        resetCar(); running = true; lastTime = performance.now();
-        overlay.classList.add('is-hidden');
-        statusNode.textContent = 'RUN ACTIVE'; requestAnimationFrame(loop);
+        startButton.disabled = true;
+        loadingOverlay.classList.remove('is-hidden');
+        window.setTimeout(() => {
+          carModel = carSelect.value;
+          initAudio();
+          resetCar(); running = true; lastTime = performance.now();
+          overlay.classList.add('is-hidden');
+          loadingOverlay.classList.add('is-hidden');
+          dashboard.classList.remove('is-hidden');
+          document.body.classList.add('is-driving');
+          statusNode.textContent = 'ON THE ROAD';
+          startButton.disabled = false;
+          requestAnimationFrame(loop);
+        }, 700);
       }
       function loop(now) {
         if (!running) return;
@@ -164,6 +215,14 @@
       function pressed(...names) { return names.some(name => keys.has(name) || touch.has(name)); }
       function update(dt) {
         elapsed += dt;
+        if (mapType === 'city') {
+          for (const vehicle of traffic) {
+            if (vehicle.heading === 0) vehicle.x = (vehicle.x + vehicle.speed * dt) % world.width;
+            else if (vehicle.heading === Math.PI) vehicle.x = (vehicle.x - vehicle.speed * dt + world.width) % world.width;
+            else if (vehicle.heading > 0) vehicle.y = (vehicle.y + vehicle.speed * dt) % world.height;
+            else vehicle.y = (vehicle.y - vehicle.speed * dt + world.height) % world.height;
+          }
+        }
         impactTimer = Math.max(0, impactTimer - dt);
         impactCooldown = Math.max(0, impactCooldown - dt);
         if (impactTimer === 0 && statusNode.textContent === 'IMPACT!') statusNode.textContent = 'RUN ACTIVE';
@@ -199,7 +258,7 @@
         if (normalX || normalY) {
           const magnitude = Math.hypot(normalX, normalY);
           triggerImpact(normalX / magnitude, normalY / magnitude, car.x, car.y, true);
-        } else {
+        } else if (mapType === 'parking') {
           for (const obstacle of obstacles) {
             const dx = car.x - obstacle.x, dy = car.y - obstacle.y;
             const distance = Math.hypot(dx, dy);
@@ -212,9 +271,10 @@
               break;
             }
           }
-        }
+        } else resolveCityCollision();
         updateEffects(dt, handbrake, speedAbs);
         const drifting = speedAbs > 105 && Math.abs(car.angle) > 0.22;
+        updateAudio(drifting, speedAbs, Math.abs(car.angle));
         if (drifting) {
           driftTime += dt; chainTimer = 1.15;
           const intensity = Math.min(1, (Math.abs(car.angle) - 0.2) / 0.75) * Math.min(1, speedAbs / 240);
@@ -287,6 +347,23 @@
           dust.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life: 0.24 + Math.random() * 0.32, maxLife: 0.56, size: 3 + Math.floor(Math.random() * 4), color: index % 3 === 0 ? '#ef7446' : '#e5dfb8' });
         }
       }
+      function resolveCityCollision() {
+        const tileX = Math.floor(car.x / 600) * 600;
+        const tileY = Math.floor(car.y / 600) * 600;
+        const localX = car.x - tileX;
+        const localY = car.y - tileY;
+        const building = { left: 205, right: 480, top: 205, bottom: 480 };
+        if (localX <= building.left - 28 || localX >= building.right + 28 || localY <= building.top - 28 || localY >= building.bottom + 28) return;
+        const edges = [
+          { distance: localX - building.left, x: tileX + building.left - 29, y: car.y, nx: -1, ny: 0 },
+          { distance: building.right - localX, x: tileX + building.right + 29, y: car.y, nx: 1, ny: 0 },
+          { distance: localY - building.top, x: car.x, y: tileY + building.top - 29, nx: 0, ny: -1 },
+          { distance: building.bottom - localY, x: car.x, y: tileY + building.bottom + 29, nx: 0, ny: 1 }
+        ];
+        const edge = edges.reduce((nearest, candidate) => candidate.distance < nearest.distance ? candidate : nearest);
+        car.x = edge.x; car.y = edge.y;
+        triggerImpact(edge.nx, edge.ny, edge.x - edge.nx * 28, edge.y - edge.ny * 28);
+      }
       function updateHud(speed, angle) {
         scoreNode.textContent = formatScore(score);
         speedNode.textContent = String(Math.round(speed * 0.72)).padStart(3, '0');
@@ -294,59 +371,149 @@
         chainMeter.style.width = `${Math.min(100, driftTime * 24)}%`;
         angleNode.textContent = `${Math.round(angle * 57.3)}°`;
         slipMeter.style.width = `${Math.min(100, angle * 90)}%`;
-        rpmMeter.style.width = `${Math.min(100, speed / 3.5)}%`;
-        rpmLabel.textContent = speed < 10 ? 'IDLE' : speed > 250 ? 'REDLINE' : 'PULLING';
         document.querySelector('#clock').textContent = `${String(Math.floor(elapsed / 60)).padStart(2, '0')}:${String(Math.floor(elapsed % 60)).padStart(2, '0')}`;
-        document.querySelector('#score-note').textContent = driftTime > 0.15 ? 'CHAIN ACTIVE / KEEP SLIDING' : 'GET SIDEWAYS TO SCORE';
       }
       function showToast(text) {
         toast.textContent = text; toast.classList.remove('is-hidden'); clearTimeout(toastTimer);
         toastTimer = setTimeout(() => toast.classList.add('is-hidden'), 650);
       }
+      function initAudio() {
+        if (audioContext) { audioContext.resume(); return; }
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+        audioContext = new AudioContextClass();
+        const buffer = audioContext.createBuffer(1, audioContext.sampleRate, audioContext.sampleRate);
+        const samples = buffer.getChannelData(0);
+        for (let index = 0; index < samples.length; index++) samples[index] = (Math.random() * 2 - 1) * 0.55;
+        const noise = audioContext.createBufferSource();
+        noise.buffer = buffer; noise.loop = true;
+        squealFilter = audioContext.createBiquadFilter();
+        squealFilter.type = 'bandpass'; squealFilter.frequency.value = 1350; squealFilter.Q.value = 0.8;
+        squealGain = audioContext.createGain(); squealGain.gain.value = 0;
+        noise.connect(squealFilter); squealFilter.connect(squealGain); squealGain.connect(audioContext.destination);
+        noise.start();
+      }
+      function updateAudio(drifting, speed, angle) {
+        if (!audioContext || !squealGain) return;
+        const intensity = drifting ? Math.min(0.16, 0.025 + (speed / 360) * (angle / 1.1) * 0.15) : 0;
+        squealGain.gain.setTargetAtTime(intensity, audioContext.currentTime, 0.08);
+        squealFilter.frequency.setTargetAtTime(850 + Math.min(1100, angle * 700), audioContext.currentTime, 0.1);
+      }
       function draw() {
-        ctx.clearRect(0, 0, W, H);
-        ctx.fillStyle = '#a7a263'; ctx.fillRect(0, 0, W, H);
-        ctx.save();
-        ctx.translate((W - world.width * MAP_SCALE) / 2, (H - world.height * MAP_SCALE) / 2);
-        ctx.scale(MAP_SCALE, MAP_SCALE);
-        drawWorld(); drawSkids(); drawDust(); drawObstacles(); drawCar();
-        ctx.restore();
+        const scale = Math.min(canvas.width / world.width, canvas.height / world.height) * 4;
+        const viewWidth = canvas.width / scale, viewHeight = canvas.height / scale;
+        const cameraX = Math.max(viewWidth / 2, Math.min(world.width - viewWidth / 2, car.x || spawn.x));
+        const cameraY = Math.max(viewHeight / 2, Math.min(world.height - viewHeight / 2, car.y || spawn.y));
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = mapType === 'city' ? '#53645a' : '#a7a263'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.setTransform(scale, 0, 0, scale, canvas.width / 2 - cameraX * scale, canvas.height / 2 - cameraY * scale);
+        if (mapType === 'city') drawCity(); else drawParkingLot();
+        drawSkids(); drawDust();
+        if (mapType === 'city') drawTraffic(); else drawObstacles();
+        drawCar();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
       }
       function drawWorld() {
-        ctx.fillStyle = '#a7a263'; ctx.fillRect(0, 0, world.width, world.height);
-        ctx.fillStyle = '#373a32'; ctx.fillRect(24, 24, world.width - 48, world.height - 48);
-        for (let x = 24; x < world.width - 24; x += 38) {
-          for (let y = 24; y < world.height - 24; y += 34) {
-            const grain = ((Math.floor(x / 38) * 73856093) ^ (Math.floor(y / 34) * 19349663)) >>> 0;
-            if (grain % 7 < 3) {
-              ctx.fillStyle = grain % 2 ? '#414339' : '#30332d';
-              ctx.fillRect(x, y, grain % 3 ? 5 : 7, grain % 5 ? 4 : 6);
-            }
-          }
-        }
-        for (let x = 24; x < world.width - 24; x += 96) {
-          for (let y = 24; y < world.height - 24; y += 68) {
-            const wear = (Math.floor(x / 96) * 92821 + Math.floor(y / 68) * 68917) % 11;
-            if (wear === 0) {
-              ctx.fillStyle = '#33362f'; ctx.fillRect(x + 8, y + 5, 17, 7);
-              ctx.fillStyle = '#3e4036'; ctx.fillRect(x + 11, y + 7, 10, 3);
-            }
-          }
-        }
-        ctx.strokeStyle = '#535447'; ctx.lineWidth = 2;
-        for (let x = 80; x < world.width - 80; x += 220) {
-          for (let y = 80; y < world.height - 80; y += 170) {
-            ctx.strokeRect(x, y, 190, 135);
-            ctx.fillStyle = '#77745a'; ctx.fillRect(x + 8, y + 8, 4, 4);
-          }
-        }
-        ctx.strokeStyle = '#d8d0a0'; ctx.lineWidth = 5; ctx.setLineDash([28, 24]);
+        ctx.fillStyle = '#59665b'; ctx.fillRect(0, 0, world.width, world.height);
+        ctx.fillStyle = '#303835'; ctx.fillRect(24, 24, world.width - 48, world.height - 48);
+        ctx.fillStyle = 'rgba(255,255,255,.025)';
+        for (let x = 48; x < world.width; x += 180) ctx.fillRect(x, 24, 1, world.height - 48);
+        for (let y = 48; y < world.height; y += 180) ctx.fillRect(24, y, world.width - 48, 1);
+        drawParkingFeatures();
+        ctx.strokeStyle = '#e8e1ca'; ctx.lineWidth = 3; ctx.setLineDash([32, 28]);
         ctx.strokeRect(40, 40, world.width - 80, world.height - 80); ctx.setLineDash([]);
-        ctx.fillStyle = '#b64d35';
-        for (let i = 0; i < 18; i++) {
-          const x = 55 + i * 205;
+        ctx.fillStyle = '#d95748';
+        for (let index = 0; index < 18; index++) {
+          const x = 55 + index * 205;
           ctx.fillRect(x, 31, 14, 9); ctx.fillRect(x, world.height - 40, 14, 9);
         }
+      }
+      function drawParkingLot() { drawWorld(); }
+      function drawParkingFeatures() {
+        for (let blockX = 80; blockX < world.width - 220; blockX += 440) {
+          for (let blockY = 80; blockY < world.height - 180; blockY += 340) {
+            ctx.fillStyle = '#242a25'; ctx.fillRect(blockX - 4, blockY + 5, 184, 122);
+            ctx.strokeStyle = '#e1dfcf'; ctx.lineWidth = 3;
+            for (let space = 0; space < 6; space++) {
+              const x = blockX + space * 35;
+              ctx.beginPath(); ctx.moveTo(x, blockY + 12); ctx.lineTo(x, blockY + 118); ctx.stroke();
+            }
+            ctx.beginPath(); ctx.moveTo(blockX, blockY + 12); ctx.lineTo(blockX + 175, blockY + 12); ctx.moveTo(blockX, blockY + 118); ctx.lineTo(blockX + 175, blockY + 118); ctx.stroke();
+            ctx.fillStyle = '#68745b'; ctx.fillRect(blockX + 178, blockY + 7, 24, 122);
+            ctx.fillStyle = '#9b8d70'; ctx.fillRect(blockX + 183, blockY + 11, 14, 114);
+            for (let plant = 0; plant < 4; plant++) {
+              const treeY = blockY + 22 + plant * 28;
+              ctx.fillStyle = '#4b3b2d'; ctx.fillRect(blockX + 187, treeY - 2, 6, 10);
+              ctx.fillStyle = plant % 2 ? '#8fa77a' : '#66866a';
+              ctx.beginPath(); ctx.arc(blockX + 190, treeY, 12, 0, Math.PI * 2); ctx.fill();
+              ctx.fillStyle = 'rgba(226,239,197,.2)';
+              ctx.beginPath(); ctx.arc(blockX + 186, treeY - 4, 5, 0, Math.PI * 2); ctx.fill();
+            }
+            for (let space = 0; space < 5; space++) {
+              if ((blockX / 440 + blockY / 340 + space) % 3 !== 0) {
+                drawMiniCar(blockX + space * 35 + 17, blockY + 65, Math.PI / 2, ['#668b91', '#bc654e', '#c6bd88'][(space + Math.floor(blockY / 340)) % 3], 34, 17);
+              }
+            }
+          }
+        }
+      }
+      function drawCity() {
+        ctx.fillStyle = '#4c5a51'; ctx.fillRect(0, 0, world.width, world.height);
+        for (let x = 0; x < world.width; x += 600) {
+          for (let y = 0; y < world.height; y += 600) {
+            ctx.fillStyle = '#776f61'; ctx.fillRect(x + 112, y + 112, 376, 376);
+            ctx.fillStyle = '#343b38'; ctx.fillRect(x + 128, y + 128, 344, 344);
+            ctx.fillStyle = '#48504b'; ctx.fillRect(x + 145, y + 145, 310, 310);
+            ctx.fillStyle = '#555a50'; ctx.fillRect(x + 160, y + 160, 280, 280);
+            ctx.fillStyle = '#e2b668';
+            for (let windowX = x + 178; windowX < x + 430; windowX += 48) {
+              ctx.fillRect(windowX, y + 174, 20, 9); ctx.fillRect(windowX, y + 420, 20, 9);
+            }
+            ctx.fillStyle = '#d95e50'; ctx.fillRect(x + 178, y + 195, 92, 20);
+            ctx.fillStyle = '#f2dfc2'; ctx.font = 'bold 13px sans-serif';
+            ctx.fillText(['ラーメン', '喫茶', '酒場', '寿司'][((x / 600 + y / 600) % 4 + 4) % 4], x + 185, y + 209);
+            ctx.fillStyle = '#313936'; ctx.fillRect(x + 181, y + 227, 238, 155);
+            for (let windowX = x + 194; windowX < x + 405; windowX += 58) {
+              ctx.fillStyle = '#e8bf72'; ctx.fillRect(windowX, y + 244, 34, 58);
+              ctx.fillStyle = '#3c4642'; ctx.fillRect(windowX + 5, y + 249, 24, 48);
+            }
+          }
+        }
+        ctx.fillStyle = '#282f2e';
+        for (let x = 0; x < world.width; x += 600) ctx.fillRect(x, 0, 180, world.height);
+        for (let y = 0; y < world.height; y += 600) ctx.fillRect(0, y, world.width, 180);
+        ctx.fillStyle = '#7e8578';
+        for (let x = 0; x < world.width; x += 600) { ctx.fillRect(x + 176, 0, 5, world.height); ctx.fillRect(x, 176, world.width, 5); }
+        ctx.strokeStyle = '#d0b86e'; ctx.lineWidth = 3; ctx.setLineDash([34, 32]);
+        for (let x = 90; x < world.width; x += 600) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, world.height); ctx.stroke(); }
+        for (let y = 90; y < world.height; y += 600) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(world.width, y); ctx.stroke(); }
+        ctx.setLineDash([]);
+        ctx.fillStyle = '#e4e0ce';
+        for (let x = 0; x < world.width; x += 600) {
+          for (let y = 0; y < world.height; y += 600) {
+            for (let stripe = 0; stripe < 6; stripe++) {
+              ctx.fillRect(x + 12 + stripe * 25, y + 12, 14, 54);
+              ctx.fillRect(x + 12 + stripe * 25, y + 114, 14, 54);
+              ctx.fillRect(x + 12, y + 12 + stripe * 25, 54, 14);
+              ctx.fillRect(x + 114, y + 12 + stripe * 25, 54, 14);
+            }
+            ctx.fillStyle = '#d95748'; ctx.fillRect(x + 72, y + 74, 36, 4);
+            ctx.fillStyle = '#e4e0ce';
+          }
+        }
+      }
+      function drawTraffic() {
+        for (const vehicle of traffic) drawMiniCar(vehicle.x, vehicle.y, vehicle.heading, vehicle.color, 42, 21);
+      }
+      function drawMiniCar(x, y, heading, color, length, width) {
+        ctx.save(); ctx.translate(x, y); ctx.rotate(heading);
+        ctx.fillStyle = 'rgba(0,0,0,.38)'; ctx.beginPath(); ctx.roundRect(-length / 2 + 3, -width / 2 + 4, length, width, width / 2); ctx.fill();
+        ctx.fillStyle = '#171a17'; ctx.beginPath(); ctx.roundRect(-length / 2, -width / 2, length, width, width / 2); ctx.fill();
+        ctx.fillStyle = color; ctx.beginPath(); ctx.roundRect(-length / 2 + 2, -width / 2 + 2, length - 4, width - 4, width / 2); ctx.fill();
+        ctx.fillStyle = '#b3c6bd'; ctx.beginPath(); ctx.roundRect(-length * 0.12, -width / 2 + 3, length * 0.32, width - 6, width / 4); ctx.fill();
+        ctx.fillStyle = '#f1d48a'; ctx.fillRect(length / 2 - 4, -width / 2 + 3, 3, 4); ctx.fillRect(length / 2 - 4, width / 2 - 7, 3, 4);
+        ctx.restore();
       }
       function drawSkids() {
         ctx.lineWidth = 3; ctx.lineCap = 'square';
@@ -382,23 +549,25 @@
       function drawCar() {
         if (!car.x) return;
         ctx.save(); ctx.translate(car.x, car.y); ctx.rotate(car.heading);
+        const modelScale = carModel === 'ae86' ? 0.9 : carModel === 'rx7' ? 1.06 : 1;
+        ctx.scale(modelScale, carModel === 'ae86' ? 0.94 : 1.02);
         ctx.fillStyle = 'rgba(0,0,0,.42)'; ctx.fillRect(-27, -12, 56, 29);
         ctx.fillStyle = '#11130f'; ctx.fillRect(-21, -16, 11, 6); ctx.fillRect(12, -15, 11, 6); ctx.fillRect(-21, 10, 11, 6); ctx.fillRect(12, 9, 11, 6);
-        ctx.fillStyle = '#d34435';
+        ctx.fillStyle = carPaint;
         ctx.beginPath();
         ctx.moveTo(-28, -9); ctx.lineTo(-24, -14); ctx.lineTo(-10, -15); ctx.lineTo(-4, -12);
         ctx.lineTo(12, -11); ctx.lineTo(21, -8); ctx.lineTo(27, -5); ctx.lineTo(29, 0);
         ctx.lineTo(27, 5); ctx.lineTo(21, 8); ctx.lineTo(12, 11); ctx.lineTo(-4, 12);
         ctx.lineTo(-10, 15); ctx.lineTo(-24, 14); ctx.lineTo(-28, 9); ctx.closePath(); ctx.fill();
-        ctx.fillStyle = '#ed6a46'; ctx.fillRect(-21, -10, 17, 20); ctx.fillRect(-4, -9, 18, 18);
+        ctx.fillStyle = carModel === 'ae86' ? '#252923' : 'rgba(255,255,255,.2)'; ctx.fillRect(-21, -10, 17, 20); ctx.fillRect(-4, -9, 18, 18);
         ctx.fillStyle = '#a9c7bb'; ctx.fillRect(-13, -8, 7, 16); ctx.fillRect(-3, -8, 12, 16);
         ctx.fillStyle = '#d9ded0'; ctx.fillRect(-5, -7, 2, 14);
-        ctx.fillStyle = '#c6533e'; ctx.fillRect(12, -8, 10, 16);
+        ctx.fillStyle = 'rgba(0,0,0,.14)'; ctx.fillRect(12, -8, 10, 16);
         ctx.fillStyle = '#f3bd69'; ctx.fillRect(19, -5, 7, 3); ctx.fillRect(19, 3, 7, 3);
         ctx.fillStyle = '#fff0b4'; ctx.fillRect(26, -7, 3, 4); ctx.fillRect(26, 3, 3, 4);
         ctx.fillStyle = '#ff7c62'; ctx.fillRect(-26, -10, 5, 4); ctx.fillRect(-26, 6, 5, 4);
         ctx.fillStyle = '#11130f'; ctx.fillRect(-29, -15, 4, 30); ctx.fillRect(-25, -13, 3, 4); ctx.fillRect(-25, 9, 3, 4);
-        ctx.fillStyle = '#ed6a46'; ctx.fillRect(-27, -13, 2, 5); ctx.fillRect(-27, 8, 2, 5);
+        ctx.fillStyle = carPaint; ctx.fillRect(-27, -13, 2, 5); ctx.fillRect(-27, 8, 2, 5);
         ctx.restore();
       }
       window.addEventListener('resize', resize);
@@ -406,11 +575,31 @@
         const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
         if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(key)) event.preventDefault();
         keys.add(key);
-        if ((key === 'Enter' || key === ' ') && !running && !crashOverlay.classList.contains('is-hidden')) start();
       });
       window.addEventListener('keyup', event => keys.delete(event.key.length === 1 ? event.key.toLowerCase() : event.key));
-      document.querySelector('#start-button').addEventListener('click', start);
-      document.querySelector('#restart-button').addEventListener('click', start);
+      mapButtons.forEach(button => button.addEventListener('click', () => {
+        mapType = button.dataset.map;
+        mapButtons.forEach(option => {
+          const selected = option === button;
+          option.classList.toggle('is-selected', selected);
+          option.setAttribute('aria-pressed', String(selected));
+        });
+        arenaTitle.textContent = mapType === 'city' ? 'SHUTO STREETS / TOKYO' : 'KITA PARKING / TOKYO';
+        routeCaption.textContent = mapType === 'city' ? 'SHUTO EXPRESSWAY · TOKYO, JAPAN' : 'PRACTICE LOT · TOKYO, JAPAN';
+        surfaceLabel.textContent = mapType === 'city' ? 'CITY ASPHALT' : 'DRY ASPHALT';
+        draw();
+      }));
+      paintButtons.forEach(button => button.addEventListener('click', () => {
+        carPaint = button.dataset.paint;
+        paintButtons.forEach(swatch => {
+          const selected = swatch === button;
+          swatch.classList.toggle('is-selected', selected);
+          swatch.setAttribute('aria-pressed', String(selected));
+        });
+        draw();
+      }));
+      carSelect.addEventListener('change', () => { carModel = carSelect.value; draw(); });
+      startButton.addEventListener('click', start);
       document.querySelectorAll('[data-control]').forEach(button => {
         const name = button.dataset.control;
         button.addEventListener('pointerdown', event => { event.preventDefault(); button.setPointerCapture(event.pointerId); touch.add(name); });
