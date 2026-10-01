@@ -212,20 +212,21 @@ if (host && frame) {
       addBox(group, config.width * 0.7, 0.1, 0.12, 0, 0.73, -config.length * 0.49, materials.red);
       addBox(group, config.width + 0.12, 0.1, config.length * 0.68, 0, 0.36, 0, materials.black);
 
-      const wheelGeometry = new THREE.CylinderGeometry(0.36, 0.36, 0.25, 12);
+      const wheelGeometry = new THREE.CylinderGeometry(0.34, 0.34, 0.25, 12);
       const wheels = [];
       for (const side of [-1, 1]) {
         for (const axle of [-1, 1]) {
+          const pivot = new THREE.Group();
+          pivot.position.set(side * (config.width * 0.52), 0.38, axle * config.length * 0.31);
+          group.add(pivot);
           const wheel = new THREE.Mesh(wheelGeometry, materials.tire);
           wheel.rotation.z = Math.PI / 2;
-          wheel.position.set(side * (config.width * 0.52), 0.38, axle * config.length * 0.31);
           wheel.castShadow = true;
-          group.add(wheel);
-          wheels.push({ mesh: wheel, axle, side });
+          pivot.add(wheel);
+          wheels.push({ mesh: wheel, pivot, axle, side });
           const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.26, 10), materials.wheelFace);
           hub.rotation.z = Math.PI / 2;
-          hub.position.copy(wheel.position);
-          group.add(hub);
+          pivot.add(hub);
         }
       }
 
@@ -247,14 +248,28 @@ if (host && frame) {
       return { group, paint, wheels, config };
     }
 
-    function buildSimpleCar(color, length = 2.2, width = 1.2) {
+    function buildSimpleCar(color, length = 3.72, width = 1.72) {
       const group = new THREE.Group();
       const paint = makeCarPaint(color);
-      addBox(group, width, 0.42, length, 0, 0.48, 0, paint);
-      addBox(group, width * 0.73, 0.46, length * 0.46, 0, 0.87, -length * 0.04, materials.glass);
+      addBox(group, width, 0.48, length, 0, 0.57, 0, paint);
+      addBox(group, width * 0.79, 0.64, length * 0.5, 0, 1.12, -length * 0.06, materials.glass);
       addBox(group, width * 0.8, 0.08, 0.1, 0, 0.69, length * 0.5, materials.headlight, false);
       addBox(group, width * 0.68, 0.08, 0.1, 0, 0.69, -length * 0.5, materials.red, false);
-      return group;
+      const wheels = [];
+      for (const side of [-1, 1]) for (const axle of [-1, 1]) {
+        const pivot = new THREE.Group();
+        pivot.position.set(side * (width * 0.52), 0.37, axle * length * 0.32);
+        group.add(pivot);
+        const tire = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.34, 0.25, 12), materials.tire);
+        tire.rotation.z = Math.PI / 2;
+        tire.castShadow = true;
+        pivot.add(tire);
+        const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.26, 10), materials.wheelFace);
+        hub.rotation.z = Math.PI / 2;
+        pivot.add(hub);
+        wheels.push({ pivot, tire, axle });
+      }
+      return { group, wheels };
     }
 
     function addRoadsideSign(group, px, py, text, side, paletteIndex) {
@@ -284,64 +299,66 @@ if (host && frame) {
       const depth = WORLD.height * SCALE;
       addPlane(mapGroup, width, depth, 0, -0.12, 0, materials.grass);
       addPlane(mapGroup, width, depth, 0, -0.04, 0, materials.concrete);
-      const laneMarks = [];
-      for (let x = 0; x < WORLD.width; x += 600) {
-        addPlane(mapGroup, 180 * SCALE, depth, worldX(x + 90), 0.008, 0, materials.road);
-        for (let y = 60; y < WORLD.height; y += 132) laneMarks.push([x + 90, y, 5, 3]);
-      }
-      for (let y = 0; y < WORLD.height; y += 600) {
-        addPlane(mapGroup, width, 180 * SCALE, 0, 0.012, worldZ(y + 90), materials.road);
-        for (let x = 60; x < WORLD.width; x += 132) laneMarks.push([x, y + 90, 3, 5]);
-      }
-      const crosswalkMarks = [];
-      for (let x = 0; x < WORLD.width; x += 600) {
-        for (let y = 0; y < WORLD.height; y += 600) {
-          for (let stripe = 0; stripe < 5; stripe++) {
-            const offset = 18 + stripe * 28;
-            crosswalkMarks.push([x + offset, y + 31, 14, 44], [x + offset, y + 149, 14, 44]);
-            crosswalkMarks.push([x + 31, y + offset, 44, 14], [x + 149, y + offset, 44, 14]);
-          }
-          laneMarks.push([x + 90, y + 90, 40, 5], [x + 90, y + 90, 5, 40]);
-        }
-      }
-      addMarkings(mapGroup, laneMarks, materials.lane, 0.032);
-      addMarkings(mapGroup, crosswalkMarks, materials.line, 0.038);
-
+      const layout = window.driftCityLayout;
+      if (!layout) return;
       const wallMats = ['#625d53', '#555d56', '#5d5a64', '#6b5d50'].map(color => new THREE.MeshStandardMaterial({ color, roughness: 0.82 }));
       const signWords = ['ラーメン', '喫茶', '居酒屋', '寿司', '市場', '旅館'];
-      let block = 0;
-      for (let tileX = 0; tileX < WORLD.width; tileX += 600) {
-        for (let tileY = 0; tileY < WORLD.height; tileY += 600) {
-          const px = tileX + 342.5;
-          const py = tileY + 342.5;
-          const height = 4.2 + (block % 4) * 0.82;
-          const w = 13.75;
-          const d = 13.75;
-          const x = worldX(px);
-          const z = worldZ(py);
-          addBox(mapGroup, w + 0.28, 0.34, d + 0.28, x, 0.17, z, materials.curb, false);
-          addBox(mapGroup, w, height, d, x, height / 2 + 0.32, z, wallMats[block % wallMats.length]);
-          addBox(mapGroup, w + 0.3, 0.2, d + 0.3, x, height + 0.48, z, materials.roof);
-          addBox(mapGroup, w - 0.8, 0.12, d - 0.8, x, height + 0.63, z, materials.concrete, false);
-          for (let windowIndex = 0; windowIndex < 3; windowIndex++) {
-            const windowX = x - 4.4 + windowIndex * 4.4;
-            addBox(mapGroup, 1.45, 0.88, 0.06, windowX, 1.3, z - d / 2 - 0.04, materials.window, false);
-            addBox(mapGroup, 1.45, 0.88, 0.06, windowX, 1.3, z + d / 2 + 0.04, materials.window, false);
-          }
-          addRoadsideSign(mapGroup, px, py - d * 10, signWords[block % signWords.length], 0, block);
-          addRoadsideSign(mapGroup, px, py + d * 10, signWords[(block + 2) % signWords.length], Math.PI, block + 1);
-          if (block % 3 === 0) addTree(mapGroup, tileX + 235, tileY + 245, 0.75);
-          block++;
+      for (let index = 0; index < layout.buildings.length; index++) {
+        const building = layout.buildings[index];
+        const x = worldX(building.x + building.w / 2), z = worldZ(building.y + building.d / 2);
+        const w = building.w * SCALE, d = building.d * SCALE, height = building.h;
+        addBox(mapGroup, w + 0.28, 0.34, d + 0.28, x, 0.17, z, materials.curb, false);
+        addBox(mapGroup, w, height, d, x, height / 2 + 0.32, z, wallMats[building.color]);
+        addBox(mapGroup, w + 0.3, 0.2, d + 0.3, x, height + 0.48, z, materials.roof);
+        addBox(mapGroup, w - 0.8, 0.12, d - 0.8, x, height + 0.63, z, materials.concrete, false);
+        const windows = Math.max(2, Math.floor(w / 1.8));
+        for (let windowIndex = 0; windowIndex < windows; windowIndex++) {
+          const windowX = x - w * 0.38 + windowIndex * (w * 0.76 / Math.max(1, windows - 1));
+          addBox(mapGroup, Math.min(1.45, w / (windows + 1)), 0.88, 0.06, windowX, 1.3, z - d / 2 - 0.04, materials.window, false);
+          addBox(mapGroup, Math.min(1.45, w / (windows + 1)), 0.88, 0.06, windowX, 1.3, z + d / 2 + 0.04, materials.window, false);
+        }
+        addRoadsideSign(mapGroup, building.x + building.w / 2, building.y + building.d / 2, signWords[index % signWords.length], index % 2 ? Math.PI : 0, index);
+      }
+      for (const road of layout.roads) {
+        const roadWidth = road.width * SCALE;
+        for (let index = 1; index < road.points.length; index++) {
+          const [fromX, fromY] = road.points[index - 1], [toX, toY] = road.points[index];
+          const dx = (toX - fromX) * SCALE, dz = (toY - fromY) * SCALE;
+          const length = Math.hypot(dx, dz);
+          const segment = addBox(mapGroup, roadWidth, 0.12, length + roadWidth * 0.38,
+            worldX((fromX + toX) / 2), 0.015, worldZ((fromY + toY) / 2), materials.road, false);
+          segment.rotation.y = Math.atan2(dx, dz);
+          const shoulder = addBox(mapGroup, roadWidth + 0.28, 0.12, length + roadWidth * 0.38,
+            worldX((fromX + toX) / 2), -0.06, worldZ((fromY + toY) / 2), materials.curb, false);
+          shoulder.rotation.y = Math.atan2(dx, dz);
         }
       }
+      for (const [x, y, size] of layout.trees) addTree(mapGroup, x, y, size);
+      buildFlyover(layout.highway);
+      for (let index = 0; index < 12; index++) {
+        const x = 260 + index * 280, z = worldZ(560);
+        addBox(mapGroup, 0.08, 2.7, 0.08, worldX(x), 1.35, z, materials.black, false);
+        addBox(mapGroup, 0.72, 0.08, 0.18, worldX(x) + 0.28, 2.68, z, materials.headlight, false);
+      }
+    }
 
-      for (let x = 0; x < WORLD.width; x += 600) {
-        for (let y = 0; y < WORLD.height; y += 600) {
-          const lampX = worldX(x + 162);
-          const lampZ = worldZ(y + 162);
-          addBox(mapGroup, 0.08, 2.7, 0.08, lampX, 1.35, lampZ, materials.black, false);
-          addBox(mapGroup, 0.72, 0.08, 0.18, lampX + 0.28, 2.68, lampZ, materials.headlight, false);
-        }
+    function buildFlyover(points) {
+      const deckY = 2.05;
+      for (let index = 1; index < points.length; index++) {
+        const [fromX, fromY] = points[index - 1], [toX, toY] = points[index];
+        const dx = (toX - fromX) * SCALE, dz = (toY - fromY) * SCALE;
+        const length = Math.hypot(dx, dz);
+        const x = worldX((fromX + toX) / 2), z = worldZ((fromY + toY) / 2);
+        const beam = addBox(mapGroup, 7.7, 0.28, length + 0.4, x, deckY, z, materials.road, false);
+        beam.rotation.y = Math.atan2(dx, dz);
+        const stripe = addBox(mapGroup, 0.12, 0.025, length, x, deckY + 0.16, z, materials.lane, false);
+        stripe.rotation.y = Math.atan2(dx, dz);
+        const rail = addBox(mapGroup, 0.12, 0.42, length, x, deckY + 0.34, z, materials.concrete, false);
+        rail.rotation.y = Math.atan2(dx, dz);
+      }
+      for (let index = 1; index < points.length - 1; index++) {
+        const [x, y] = points[index];
+        addBox(mapGroup, 0.42, deckY, 0.42, worldX(x), deckY / 2, worldZ(y), materials.concrete, false);
       }
     }
 
@@ -362,10 +379,9 @@ if (host && frame) {
           for (let tree = 0; tree < 3; tree++) addTree(mapGroup, planterX, blockY + 28 + tree * 38, 0.78);
           if ((Math.floor(blockX / 440) + Math.floor(blockY / 340)) % 3 === 0) {
             const slot = (Math.floor(blockX / 440) + Math.floor(blockY / 340)) % 5;
-            const car = buildSimpleCar(['#728c87', '#b96652', '#c5b886', '#66799a'][slot % 4], 1.8, 0.83);
-            car.position.set(worldX(blockX + slot * 35 + 17), 0, worldZ(blockY + 65));
-            car.rotation.y = 0;
-            mapGroup.add(car);
+            const car = buildSimpleCar(['#728c87', '#b96652', '#c5b886', '#66799a'][slot % 4]);
+            car.group.position.set(worldX(blockX + slot * 35 + 17), 0, worldZ(blockY + 65));
+            mapGroup.add(car.group);
           }
         }
       }
@@ -403,9 +419,9 @@ if (host && frame) {
       }
       trafficGroup.clear();
       trafficMeshes = vehicles.map(vehicle => {
-        const group = buildSimpleCar(vehicle.color, 2.2, 1.18);
-        trafficGroup.add(group);
-        return group;
+        const car = buildSimpleCar(vehicle.color);
+        trafficGroup.add(car.group);
+        return car;
       });
     }
 
@@ -436,7 +452,8 @@ if (host && frame) {
       playerGroup.position.y = Math.min(0.1, Math.abs(state.car.angle) * 0.045);
       if (carParts) {
         for (const wheel of carParts.wheels) {
-          if (wheel.axle > 0) wheel.mesh.rotation.y = -state.car.steer * 0.22;
+          if (wheel.axle > 0) wheel.pivot.rotation.y = -state.car.steer * 0.38;
+          wheel.mesh.rotation.x -= speed * SCALE * state.dt / 0.34;
         }
       }
       cameraTarget.set(worldX(state.car.x) + forwardX * 3.2, 0.72, worldZ(state.car.y) + forwardZ * 3.2);
@@ -475,9 +492,13 @@ if (host && frame) {
       if (trafficMeshes.length !== vehicles.length) rebuildTraffic(vehicles);
       for (let index = 0; index < vehicles.length; index++) {
         const vehicle = vehicles[index];
-        const mesh = trafficMeshes[index];
-        mesh.position.set(worldX(vehicle.x), 0, worldZ(vehicle.y));
-        mesh.rotation.y = Math.PI / 2 - vehicle.heading;
+        const car = trafficMeshes[index];
+        car.group.position.set(worldX(vehicle.x), 0, worldZ(vehicle.y));
+        car.group.rotation.y = Math.PI / 2 - vehicle.heading;
+        for (const wheel of car.wheels) {
+          wheel.tire.rotation.x -= vehicle.speed * SCALE * state.dt / 0.34;
+          wheel.pivot.rotation.y = wheel.axle > 0 ? THREE.MathUtils.clamp(vehicle.steer || 0, -0.45, 0.45) : 0;
+        }
       }
       trafficGroup.visible = currentMap === 'city';
     }
