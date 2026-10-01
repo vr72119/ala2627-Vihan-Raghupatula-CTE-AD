@@ -25,7 +25,9 @@
         <div class="arena-heading"><span id="arena-title">KITA PARKING / TOKYO</span><span id="clock">00:00</span></div>
         <div class="arena-frame">
           <canvas id="game-canvas"
-            aria-label="Top-down drift arena. Drive with WASD or arrow keys, space to handbrake."></canvas>
+            aria-label="Drift arena. Drive with WASD or arrow keys, space to handbrake."></canvas>
+          <div id="three-scene" class="three-scene" role="img"
+            aria-label="Third-person 3D view following your car through a Japanese night street or parking lot."></div>
           <div class="start-overlay" id="start-overlay">
             <div class="menu-panel">
               <div class="overlay-tag"><span>夜のドライブ</span> NIGHT DRIVE · TOKYO, JP</div>
@@ -138,6 +140,7 @@
       let car = {};
       let running = false;
       let lastTime = 0;
+      let frameDelta = 1 / 60;
       let elapsed = 0;
       let score = 0;
       let chain = 1;
@@ -210,6 +213,7 @@
       function loop(now) {
         if (!running) return;
         const dt = Math.min((now - lastTime) / 1000, 0.033); lastTime = now;
+        frameDelta = dt;
         update(dt); draw(); requestAnimationFrame(loop);
       }
       function pressed(...names) { return names.some(name => keys.has(name) || touch.has(name)); }
@@ -400,6 +404,10 @@
         squealFilter.frequency.setTargetAtTime(850 + Math.min(1100, angle * 700), audioContext.currentTime, 0.1);
       }
       function draw() {
+        if (window.driftScene) {
+          window.driftScene.render({ mapType, car, carPaint, carModel, traffic, obstacles, skidMarks, elapsed, dt: frameDelta });
+          return;
+        }
         const scale = Math.min(canvas.width / world.width, canvas.height / world.height) * 4;
         const viewWidth = canvas.width / scale, viewHeight = canvas.height / scale;
         const cameraX = Math.max(viewWidth / 2, Math.min(world.width - viewWidth / 2, car.x || spawn.x));
@@ -571,6 +579,7 @@
         ctx.restore();
       }
       window.addEventListener('resize', resize);
+      window.addEventListener('drift-scene-ready', draw);
       window.addEventListener('keydown', event => {
         const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
         if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(key)) event.preventDefault();
@@ -608,6 +617,7 @@
       resetCar(); resize();
     })();
   </script>
+  <script type="module" src="drift-scene.js"></script>
 </body>
 
 </html>
