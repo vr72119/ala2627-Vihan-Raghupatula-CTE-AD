@@ -488,7 +488,7 @@ if (host && frame) {
       if (skidMesh.instanceColor) skidMesh.instanceColor.needsUpdate = true;
     }
 
-    function syncTraffic(vehicles) {
+    function syncTraffic(vehicles, dt) {
       if (trafficMeshes.length !== vehicles.length) rebuildTraffic(vehicles);
       for (let index = 0; index < vehicles.length; index++) {
         const vehicle = vehicles[index];
@@ -496,7 +496,7 @@ if (host && frame) {
         car.group.position.set(worldX(vehicle.x), 0, worldZ(vehicle.y));
         car.group.rotation.y = Math.PI / 2 - vehicle.heading;
         for (const wheel of car.wheels) {
-          wheel.tire.rotation.x -= vehicle.speed * SCALE * state.dt / 0.34;
+          wheel.tire.rotation.x -= vehicle.speed * SCALE * dt / 0.34;
           wheel.pivot.rotation.y = wheel.axle > 0 ? THREE.MathUtils.clamp(vehicle.steer || 0, -0.45, 0.45) : 0;
         }
       }
@@ -514,7 +514,7 @@ if (host && frame) {
         currentMap = state.mapType;
       }
       updateCar(state);
-      syncTraffic(state.traffic);
+      syncTraffic(state.traffic, state.dt);
       updateSkids(state.skidMarks);
       renderer.render(scene, camera);
     }
